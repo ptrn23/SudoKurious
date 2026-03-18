@@ -1,5 +1,9 @@
 "use client";
 import { useState } from "react";
+import { Outfit, Newsreader } from "next/font/google";
+
+const outfit = Outfit({ subsets: ["latin"] });
+const newsreader = Newsreader({ subsets: ["latin"], style: ['normal', 'italic'] });
 
 export default function Home() {
   const [board, setBoard] = useState(
@@ -38,7 +42,7 @@ export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center py-16 bg-slate-50">
       
-      <h1 className={`text-6xl font-serif font-bold tracking-tight mb-2 ${themeColors[variant].text}`}>
+      <h1 className={`${newsreader.className} text-6xl font-bold tracking-tight mb-2 ${themeColors[variant].text}`}>
         SudoKurious
       </h1>
 
@@ -47,7 +51,7 @@ export default function Home() {
         <select 
           value={variant} 
           onChange={(e) => setVariant(e.target.value as any)}
-          className={`bg-transparent text-slate-800 font-bold focus:outline-none cursor-pointer ${themeColors[variant].text}`}
+          className={`${outfit.className} bg-transparent text-slate-800 font-bold focus:outline-none cursor-pointer ${themeColors[variant].text}`}
         >
           <option value="standard">Standard</option>
           <option value="x-sudoku">X-Sudoku</option>
@@ -68,7 +72,7 @@ export default function Home() {
                   type="text"
                   value={cell === 0 ? "" : cell}
                   onChange={(e) => handleChange(rIndex, cIndex, e.target.value)}
-                  className={`w-12 h-12 sm:w-14 sm:h-14 text-center text-2xl font-bold text-slate-800 bg-white 
+                  className={`${outfit.className} w-12 h-12 sm:w-14 sm:h-14 text-center text-2xl font-bold text-slate-800 bg-white 
                     focus:bg-slate-50 focus:outline-none focus:ring-4 focus:ring-inset focus:z-10 ${themeColors[variant].ring}
                     ${isRightBorder ? "border-r-2 border-r-slate-400" : "border-r border-r-slate-200"}
                     ${isBottomBorder ? "border-b-2 border-b-slate-400" : "border-b border-b-slate-200"}
@@ -82,13 +86,13 @@ export default function Home() {
       
       <button 
         onClick={fetchHint}
-        className={`px-8 py-3 text-white font-bold rounded-full shadow-md transition-colors duration-200 ${themeColors[variant].button}`}
+        className={`${outfit.className} px-8 py-3 text-white font-bold rounded-full shadow-md transition-colors duration-200 ${themeColors[variant].button}`}
       >
         Get Hint
       </button>
 
       <div className="mt-8 p-6 bg-white rounded-2xl w-full max-w-md shadow-md border border-slate-100 text-center">
-        <p className="text-slate-700 font-medium leading-relaxed">{hint}</p>
+        <p className={`${outfit.className} text-slate-700 font-medium leading-relaxed`}>{hint}</p>
       </div>
 
     </main>
