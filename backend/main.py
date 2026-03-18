@@ -26,5 +26,5 @@ def get_hint(request: SudokuRequest):
         "technique_used": "handshake_test",
         "highlight_cells": [[0, 0]],
         "suggested_value": 7,
-        "explanation_text": "Connection successful! Try putting a 7 in the top-left corner."
+        "explanation_text": f"Connection successful! You are playing {request.variant.upper()}."
     }

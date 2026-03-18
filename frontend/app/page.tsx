@@ -5,6 +5,8 @@ export default function Home() {
   const [board, setBoard] = useState(
     Array(9).fill(null).map(() => Array(9).fill(0))
   );
+
+  const [variant, setVariant] = useState("standard");
   const [hint, setHint] = useState("Click 'Get Hint' to test the AI!");
 
   const handleChange = (row: number, col: number, value: string) => {
@@ -20,7 +22,7 @@ export default function Home() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          variant: "standard",
+          variant: variant,
           board: board,
         }),
       });
@@ -36,6 +38,19 @@ export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-slate-950 text-white p-4">
       <h1 className="text-4xl font-bold mb-8 text-emerald-400">SudoKurious</h1>
+      
+      <div className="mb-6 flex items-center space-x-3">
+        <label className="text-slate-300 font-medium">Game Mode:</label>
+        <select 
+          value={variant} 
+          onChange={(e) => setVariant(e.target.value)}
+          className="p-2 bg-slate-800 text-white rounded border border-slate-600 focus:outline-none focus:border-emerald-400"
+        >
+          <option value="standard">Standard (9x9)</option>
+          <option value="x-sudoku">X-Sudoku (Diagonals)</option>
+          <option value="killer">Killer Sudoku (Sum Cages)</option>
+        </select>
+      </div>
 
       {/* The 9x9 Grid */}
       <div className="grid grid-cols-9 gap-1 bg-slate-700 p-1 rounded-sm">
