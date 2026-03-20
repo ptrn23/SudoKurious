@@ -1,9 +1,9 @@
 # python & backend
-__pycache__/
-venv/
-env/
-fastapi-env/
-.env
+backend/__pycache__/
+backend/.venv/
+backend/env/
+backend/fastapi-env/
+backend/.env
 
 node_modules/
 .next/

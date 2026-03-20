@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { Outfit, Newsreader } from "next/font/google";
+import { Grid3X3, X as XIcon, Calculator } from "lucide-react";
 
 const outfit = Outfit({ subsets: ["latin"] });
 const newsreader = Newsreader({ subsets: ["latin"], style: ['normal', 'italic'] });
@@ -46,17 +47,42 @@ export default function Home() {
         SudoKurious
       </h1>
 
-      <div className="mb-8 flex items-center bg-white px-4 py-2 rounded-full shadow-sm border border-slate-200">
-        <label className="text-slate-500 font-semibold mr-3">Mode:</label>
-        <select 
-          value={variant} 
-          onChange={(e) => setVariant(e.target.value as any)}
-          className={`${outfit.className} bg-transparent text-slate-800 font-bold focus:outline-none cursor-pointer ${themeColors[variant].text}`}
+      <div className="mb-8 flex items-center space-x-3">
+        <button
+          onClick={() => setVariant("standard")}
+          className={`${outfit.className} flex items-center px-5 py-2 rounded-full border-2 font-bold transition-all ${
+            variant === "standard" 
+              ? "bg-blue-50 border-blue-500 text-blue-600 shadow-sm" 
+              : "bg-white border-slate-200 text-slate-500 hover:bg-slate-50"
+          }`}
         >
-          <option value="standard">Standard</option>
-          <option value="x-sudoku">X-Sudoku</option>
-          <option value="killer">Killer Sudoku</option>
-        </select>
+          <Grid3X3 className="w-5 h-5 mr-2" />
+          Standard
+        </button>
+
+        <button
+          onClick={() => setVariant("x-sudoku")}
+          className={`${outfit.className} flex items-center px-5 py-2 rounded-full border-2 font-bold transition-all ${
+            variant === "x-sudoku" 
+              ? "bg-orange-50 border-orange-500 text-orange-600 shadow-sm" 
+              : "bg-white border-slate-200 text-slate-500 hover:bg-slate-50"
+          }`}
+        >
+          <XIcon className="w-5 h-5 mr-2" />
+          X-Sudoku
+        </button>
+
+        <button
+          onClick={() => setVariant("killer")}
+          className={`${outfit.className} flex items-center px-5 py-2 rounded-full border-2 font-bold transition-all ${
+            variant === "killer" 
+              ? "bg-red-50 border-red-500 text-red-600 shadow-sm" 
+              : "bg-white border-slate-200 text-slate-500 hover:bg-slate-50"
+          }`}
+        >
+          <Calculator className="w-5 h-5 mr-2" />
+          Killer Sudoku
+        </button>
       </div>
 
       <div className="bg-white p-3 rounded-2xl shadow-xl border border-slate-100 mb-8">
