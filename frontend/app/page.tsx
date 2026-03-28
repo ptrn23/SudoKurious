@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { Outfit, Newsreader } from "next/font/google";
-import { Grid3X3, X as XIcon, Calculator, Plus, Eye, Trash2 } from "lucide-react";
+import { Grid3X3, X as XIcon, Calculator, Plus, Trash2, Eraser } from "lucide-react";
 
 const outfit = Outfit({ subsets: ["latin"] });
 const newsreader = Newsreader({ subsets: ["latin"], style: ['normal', 'italic'] });
@@ -18,6 +18,7 @@ export default function Home() {
   const [selectedCells, setSelectedCells] = useState<[number, number][]>([]);
   const [isDrawing, setIsDrawing] = useState(false);
   const [cageSumInput, setCageSumInput] = useState("");
+  const [isDeletingCage, setIsDeletingCage] = useState(false);
 
   const themeColors = {
     "standard": { button: "bg-blue-600 hover:bg-blue-700", text: "text-blue-600", ring: "focus:ring-blue-200" },
@@ -50,7 +51,21 @@ export default function Home() {
   };
 
   const handleMouseDown = (r: number, c: number) => {
-    if (!isAddingCage || isCellCaged(r, c)) return;
+    if (isDeletingCage) {
+      const targetCageIndex = cages.findIndex(cage => 
+        cage.cells.some(([cr, cc]) => cr === r && cc === c)
+      );
+      
+      if (targetCageIndex !== -1) {
+        // Remove the clicked cage
+        const updatedCages = [...cages];
+        updatedCages.splice(targetCageIndex, 1);
+        setCages(updatedCages);
+      }
+      return;
+    }
+
+    if (!isAddingCage || isCellCaged(r, c)) return; 
     setIsDrawing(true);
     
     const isAlreadySelected = selectedCells.some(([sr, sc]) => sr === r && sc === c);
@@ -150,7 +165,10 @@ export default function Home() {
           ) : (
             <button 
               className={`${outfit.className} flex items-center px-4 py-2 bg-red-100 text-red-700 hover:bg-red-200 rounded-lg font-bold transition-colors text-sm`}
-              onClick={() => setIsAddingCage(true)}
+              onClick={() => {
+                setIsAddingCage(true);
+                setIsDeletingCage(false); // Ensure delete mode turns off
+              }}
             >
               <Plus className="w-4 h-4 mr-2" />
               Add Sum Cage
@@ -158,11 +176,20 @@ export default function Home() {
           )}
           
           <button 
-            className={`${outfit.className} flex items-center px-4 py-2 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-lg font-bold transition-colors text-sm`}
-            onClick={() => console.log("Show Cages clicked")}
+            className={`${outfit.className} flex items-center px-4 py-2 rounded-lg font-bold transition-colors text-sm ${
+              isDeletingCage 
+                ? "bg-orange-100 text-orange-700 border border-orange-300 shadow-inner" 
+                : "bg-slate-100 text-slate-700 hover:bg-slate-200 border border-transparent"
+            }`}
+            onClick={() => {
+              setIsDeletingCage(!isDeletingCage);
+              setIsAddingCage(false);
+              setSelectedCells([]);
+              setCageSumInput("");
+            }}
           >
-            <Eye className="w-4 h-4 mr-2" />
-            Show Sum Cages
+            <Eraser className="w-4 h-4 mr-2" />
+            {isDeletingCage ? "Click a cage to erase" : "Delete Sum Cage"}
           </button>
           
           <button 
@@ -243,7 +270,7 @@ export default function Home() {
                     type="text"
                     value={cell === 0 ? "" : cell}
                     onChange={(e) => handleChange(rIndex, cIndex, e.target.value)}
-                    readOnly={isAddingCage}
+                    readOnly={isAddingCage || isDeletingCage}
                     draggable={false}
                     onMouseDown={() => handleMouseDown(rIndex, cIndex)}
                     onMouseEnter={() => handleMouseEnter(rIndex, cIndex)}
