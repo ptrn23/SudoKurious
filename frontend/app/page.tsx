@@ -189,6 +189,16 @@ export default function Home() {
               
               const isSelectedForCage = selectedCells.some(([sr, sc]) => sr === rIndex && sc === cIndex);
               const matchingCage = cages.find(cage => cage.cells.some(([cr, cc]) => cr === rIndex && cc === cIndex));
+              
+              const activeCells = matchingCage ? matchingCage.cells : isSelectedForCage ? selectedCells : null;
+              
+              let hasTop = false, hasBottom = false, hasLeft = false, hasRight = false;
+              if (activeCells) {
+                hasTop = !activeCells.some(([cr, cc]) => cr === rIndex - 1 && cc === cIndex);
+                hasBottom = !activeCells.some(([cr, cc]) => cr === rIndex + 1 && cc === cIndex);
+                hasLeft = !activeCells.some(([cr, cc]) => cr === rIndex && cc === cIndex - 1);
+                hasRight = !activeCells.some(([cr, cc]) => cr === rIndex && cc === cIndex + 1);
+              }
 
               let isTopLeftOfCage = false;
               if (matchingCage) {
@@ -205,9 +215,20 @@ export default function Home() {
               return (
                 <div key={`${rIndex}-${cIndex}`} className="relative w-12 h-12 sm:w-14 sm:h-14">
                   {isTopLeftOfCage && (
-                    <span className="absolute top-0.5 left-1 text-[11px] font-bold text-red-700 z-20 pointer-events-none">
+                    <span className="absolute top-0.5 left-1.5 text-[11px] font-bold text-red-700 z-20 pointer-events-none">
                       {matchingCage?.sum}
                     </span>
+                  )}
+                  
+                  {activeCells && (
+                    <div 
+                      className={`absolute inset-0 pointer-events-none border-dashed border-red-500 z-10
+                        ${hasTop ? 'border-t-[3px]' : ''}
+                        ${hasBottom ? 'border-b-[3px]' : ''}
+                        ${hasLeft ? 'border-l-[3px]' : ''}
+                        ${hasRight ? 'border-r-[3px]' : ''}
+                      `} 
+                    />
                   )}
                   
                   <input
@@ -219,7 +240,7 @@ export default function Home() {
                     onMouseDown={() => handleMouseDown(rIndex, cIndex)}
                     onMouseEnter={() => handleMouseEnter(rIndex, cIndex)}
                     className={`${outfit.className} absolute inset-0 w-full h-full text-center text-2xl font-bold text-slate-800 cursor-pointer
-                      focus:outline-none focus:ring-4 focus:ring-inset focus:z-10 ${themeColors[variant].ring}
+                      focus:outline-none focus:ring-4 focus:ring-inset focus:z-0 ${themeColors[variant].ring}
                       ${isRightBorder ? "border-r-2 border-r-slate-400" : "border-r border-r-slate-200"}
                       ${isBottomBorder ? "border-b-2 border-b-slate-400" : "border-b border-b-slate-200"}
                       ${isSelectedForCage ? "bg-red-200 transition-colors" : matchingCage ? "bg-red-50" : isXDiagonal ? "bg-orange-50" : "bg-white"} 
