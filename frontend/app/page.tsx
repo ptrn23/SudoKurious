@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { Outfit, Newsreader } from "next/font/google";
-import { Grid3X3, X as XIcon, Calculator } from "lucide-react";
+import { Grid3X3, X as XIcon, Calculator, Plus, Eye, Trash2 } from "lucide-react";
 
 const outfit = Outfit({ subsets: ["latin"] });
 const newsreader = Newsreader({ subsets: ["latin"], style: ['normal', 'italic'] });
@@ -84,7 +84,33 @@ export default function Home() {
           Killer Sudoku
         </button>
       </div>
-
+      {variant === "killer" && (
+        <div className="mb-6 flex items-center space-x-3 animate-in fade-in slide-in-from-top-2 duration-300">
+          <button 
+            className={`${outfit.className} flex items-center px-4 py-2 bg-red-100 text-red-700 hover:bg-red-200 rounded-lg font-bold transition-colors text-sm`}
+            onClick={() => console.log("Add Cage clicked")}
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Add Sum Cage
+          </button>
+          
+          <button 
+            className={`${outfit.className} flex items-center px-4 py-2 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-lg font-bold transition-colors text-sm`}
+            onClick={() => console.log("Show Cages clicked")}
+          >
+            <Eye className="w-4 h-4 mr-2" />
+            Show Sum Cages
+          </button>
+          
+          <button 
+            className={`${outfit.className} flex items-center px-4 py-2 bg-white border border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-red-600 rounded-lg font-bold transition-colors text-sm`}
+            onClick={() => console.log("Clear Cages clicked")}
+          >
+            <Trash2 className="w-4 h-4 mr-2" />
+            Clear Cages
+          </button>
+        </div>
+      )}
       <div className="bg-white p-3 shadow-xl border border-slate-100 mb-8">
         <div className="grid grid-cols-9 border-4 border-slate-700 overflow-hidden">
           {board.map((row, rIndex) =>
