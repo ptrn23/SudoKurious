@@ -192,8 +192,11 @@ export default function Home() {
               const isBottomBorder = (rIndex + 1) % 3 === 0 && rIndex !== 8;
               const isXDiagonal = variant === "x-sudoku" && (rIndex === cIndex || rIndex + cIndex === 8);
               
-              const isSelectedForCage = selectedCells.some(([sr, sc]) => sr === rIndex && sc === cIndex);
-              const matchingCage = cages.find(cage => cage.cells.some(([cr, cc]) => cr === rIndex && cc === cIndex));
+              const isKiller = variant === "killer";
+              const isSelectedForCage = isKiller && selectedCells.some(([sr, sc]) => sr === rIndex && sc === cIndex);
+              const matchingCage = isKiller 
+                ? cages.find(cage => cage.cells.some(([cr, cc]) => cr === rIndex && cc === cIndex)) 
+                : undefined;
               
               const activeCells = matchingCage ? matchingCage.cells : isSelectedForCage ? selectedCells : null;
               
