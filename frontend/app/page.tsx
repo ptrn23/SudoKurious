@@ -12,6 +12,11 @@ export default function Home() {
   );
   const [variant, setVariant] = useState<"standard" | "x-sudoku" | "killer">("standard");
   const [hint, setHint] = useState("Click 'Get Hint' to test the AI!");
+  
+  const [cages, setCages] = useState<{ sum: number; cells: [number, number][] }[]>([]);
+  const [isAddingCage, setIsAddingCage] = useState(false);
+  const [selectedCells, setSelectedCells] = useState<[number, number][]>([]);
+  const [isDrawing, setIsDrawing] = useState(false);
 
   const themeColors = {
     "standard": { button: "bg-blue-600 hover:bg-blue-700", text: "text-blue-600", ring: "focus:ring-blue-200" },
@@ -23,6 +28,30 @@ export default function Home() {
     const newBoard = [...board];
     newBoard[row][col] = value === "" ? 0 : parseInt(value.slice(-1)) || 0;
     setBoard(newBoard);
+  };
+
+  const handleMouseDown = (r: number, c: number) => {
+    if (!isAddingCage) return;
+    setIsDrawing(true);
+    
+    const isAlreadySelected = selectedCells.some(([sr, sc]) => sr === r && sc === c);
+    if (!isAlreadySelected) {
+      setSelectedCells([...selectedCells, [r, c]]);
+    }
+  };
+
+  const handleMouseEnter = (r: number, c: number) => {
+    if (!isAddingCage || !isDrawing) return; // Only trigger if they are actively holding the mouse down
+    
+    const isAlreadySelected = selectedCells.some(([sr, sc]) => sr === r && sc === c);
+    if (!isAlreadySelected) {
+      setSelectedCells((prev) => [...prev, [r, c]]);
+    }
+  };
+
+  const handleMouseUp = () => {
+    if (!isAddingCage) return;
+    setIsDrawing(false);
   };
 
   const fetchHint = async () => {
@@ -87,11 +116,18 @@ export default function Home() {
       {variant === "killer" && (
         <div className="mb-6 flex items-center space-x-3 animate-in fade-in slide-in-from-top-2 duration-300">
           <button 
-            className={`${outfit.className} flex items-center px-4 py-2 bg-red-100 text-red-700 hover:bg-red-200 rounded-lg font-bold transition-colors text-sm`}
-            onClick={() => console.log("Add Cage clicked")}
+            className={`${outfit.className} flex items-center px-4 py-2 rounded-lg font-bold transition-colors text-sm ${
+              isAddingCage 
+                ? "bg-red-600 text-white shadow-md animate-pulse"
+                : "bg-red-100 text-red-700 hover:bg-red-200"
+            }`}
+            onClick={() => {
+              setIsAddingCage(!isAddingCage);
+              setSelectedCells([]); // Clear any accidental selections if toggled off
+            }}
           >
             <Plus className="w-4 h-4 mr-2" />
-            Add Sum Cage
+            {isAddingCage ? "Finish Cage" : "Add Sum Cage"}
           </button>
           
           <button 
@@ -111,16 +147,20 @@ export default function Home() {
           </button>
         </div>
       )}
-      <div className="bg-white p-3 shadow-xl border border-slate-100 mb-8">
+      
+      <div 
+        className="bg-white p-3 shadow-xl border border-slate-100 mb-8 select-none"
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+      >
         <div className="grid grid-cols-9 border-4 border-slate-700 overflow-hidden">
           {board.map((row, rIndex) =>
             row.map((cell, cIndex) => {
               const isRightBorder = (cIndex + 1) % 3 === 0 && cIndex !== 8;
               const isBottomBorder = (rIndex + 1) % 3 === 0 && rIndex !== 8;
+              const isXDiagonal = variant === "x-sudoku" && (rIndex === cIndex || rIndex + cIndex === 8);
               
-              const isMainDiagonal = rIndex === cIndex;
-              const isAntiDiagonal = rIndex + cIndex === 8;
-              const isXDiagonal = variant === "x-sudoku" && (isMainDiagonal || isAntiDiagonal);
+              const isSelectedForCage = selectedCells.some(([sr, sc]) => sr === rIndex && sc === cIndex);
               
               return (
                 <input
@@ -128,11 +168,15 @@ export default function Home() {
                   type="text"
                   value={cell === 0 ? "" : cell}
                   onChange={(e) => handleChange(rIndex, cIndex, e.target.value)}
-                  className={`${outfit.className} w-12 h-12 sm:w-14 sm:h-14 text-center text-2xl font-bold text-slate-800 
+                  readOnly={isAddingCage}
+                  draggable={false}
+                  onMouseDown={() => handleMouseDown(rIndex, cIndex)}
+                  onMouseEnter={() => handleMouseEnter(rIndex, cIndex)}
+                  className={`${outfit.className} w-12 h-12 sm:w-14 sm:h-14 text-center text-2xl font-bold text-slate-800 cursor-pointer
                     focus:outline-none focus:ring-4 focus:ring-inset focus:z-10 ${themeColors[variant].ring}
                     ${isRightBorder ? "border-r-2 border-r-slate-400" : "border-r border-r-slate-200"}
                     ${isBottomBorder ? "border-b-2 border-b-slate-400" : "border-b border-b-slate-200"}
-                    ${isXDiagonal ? "bg-orange-50" : "bg-white"} 
+                    ${isSelectedForCage ? "bg-red-200 transition-colors" : isXDiagonal ? "bg-orange-50" : "bg-white"} 
                   `}
                 />
               );
