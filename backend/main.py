@@ -37,7 +37,7 @@ def get_hint(request: SudokuRequest):
             "technique_used": "handshake_test",
             "highlight_cells": [[0, 0]],
             "suggested_value": 7,
-            "explanation_text": f"Success! Backend received {request.variant.upper()} mode with {len(request.cages)} cages."
+            "explanation_text": f"Success! Backend received {request.variant.upper()} mode with {len(request.cages)} cages!"
         }
     
     return {
@@ -45,5 +45,5 @@ def get_hint(request: SudokuRequest):
         "technique_used": "handshake_test",
         "highlight_cells": [[0, 0]],
         "suggested_value": 7,
-        "explanation_text": f"Success! Backend received {request.variant.upper()} board."
+        "explanation_text": f"Success! Backend received {request.variant.upper()} board!"
     }
