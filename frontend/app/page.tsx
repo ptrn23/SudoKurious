@@ -90,7 +90,11 @@ export default function Home() {
       const response = await fetch("http://localhost:8000/api/get-hint", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ variant, board }),
+        body: JSON.stringify({ 
+          variant: variant, 
+          board: board,
+          cages: variant === "killer" ? cages : [] 
+        }),
       });
       const data = await response.json();
       setHint(data.explanation_text);
