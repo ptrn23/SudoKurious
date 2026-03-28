@@ -85,12 +85,16 @@ export default function Home() {
         </button>
       </div>
 
-      <div className="bg-white p-3 rounded-2xl shadow-xl border border-slate-100 mb-8">
-        <div className="grid grid-cols-9 border-4 border-slate-700 rounded-sm overflow-hidden">
+      <div className="bg-white p-3 shadow-xl border border-slate-100 mb-8">
+        <div className="grid grid-cols-9 border-4 border-slate-700 overflow-hidden">
           {board.map((row, rIndex) =>
             row.map((cell, cIndex) => {
               const isRightBorder = (cIndex + 1) % 3 === 0 && cIndex !== 8;
               const isBottomBorder = (rIndex + 1) % 3 === 0 && rIndex !== 8;
+              
+              const isMainDiagonal = rIndex === cIndex;
+              const isAntiDiagonal = rIndex + cIndex === 8;
+              const isXDiagonal = variant === "x-sudoku" && (isMainDiagonal || isAntiDiagonal);
               
               return (
                 <input
@@ -98,10 +102,11 @@ export default function Home() {
                   type="text"
                   value={cell === 0 ? "" : cell}
                   onChange={(e) => handleChange(rIndex, cIndex, e.target.value)}
-                  className={`${outfit.className} w-12 h-12 sm:w-14 sm:h-14 text-center text-2xl font-bold text-slate-800 bg-white 
-                    focus:bg-slate-50 focus:outline-none focus:ring-4 focus:ring-inset focus:z-10 ${themeColors[variant].ring}
+                  className={`${outfit.className} w-12 h-12 sm:w-14 sm:h-14 text-center text-2xl font-bold text-slate-800 
+                    focus:outline-none focus:ring-4 focus:ring-inset focus:z-10 ${themeColors[variant].ring}
                     ${isRightBorder ? "border-r-2 border-r-slate-400" : "border-r border-r-slate-200"}
                     ${isBottomBorder ? "border-b-2 border-b-slate-400" : "border-b border-b-slate-200"}
+                    ${isXDiagonal ? "bg-orange-50" : "bg-white"} 
                   `}
                 />
               );
