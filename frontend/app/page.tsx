@@ -167,7 +167,12 @@ export default function Home() {
           
           <button 
             className={`${outfit.className} flex items-center px-4 py-2 bg-white border border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-red-600 rounded-lg font-bold transition-colors text-sm`}
-            onClick={() => console.log("Clear Cages clicked")}
+            onClick={() => {
+              setCages([]);
+              setSelectedCells([]);
+              setIsAddingCage(false);
+              setCageSumInput("");
+            }}
           >
             <Trash2 className="w-4 h-4 mr-2" />
             Clear Cages
