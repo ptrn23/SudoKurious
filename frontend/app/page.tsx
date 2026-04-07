@@ -12,6 +12,7 @@ export default function Home() {
   );
   const [variant, setVariant] = useState<"standard" | "x-sudoku" | "killer">("standard");
   const [hint, setHint] = useState("Click 'Get Hint' to test the AI!");
+  const [hintCells, setHintCells] = useState<[number, number][]>([]);
   
   const [cages, setCages] = useState<{ sum: number; cells: [number, number][] }[]>([]);
   const [isAddingCage, setIsAddingCage] = useState(false);
@@ -86,6 +87,8 @@ export default function Home() {
 
   const fetchHint = async () => {
     setHint("Thinking...");
+    setHintCells([]);
+    
     try {
       const response = await fetch("http://localhost:8000/api/get-hint", {
         method: "POST",
@@ -98,6 +101,11 @@ export default function Home() {
       });
       const data = await response.json();
       setHint(data.explanation_text);
+      
+      if (data.highlight_cells) {
+        setHintCells(data.highlight_cells);
+      }
+      
     } catch (error) {
       setHint("Error: Could not connect to the AI server.");
     }
