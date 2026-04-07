@@ -31,6 +31,8 @@ export default function Home() {
     const newBoard = [...board];
     newBoard[row][col] = value === "" ? 0 : parseInt(value.slice(-1)) || 0;
     setBoard(newBoard);
+    setHintCells([]); 
+    setHint("Click 'Get Hint' to test the AI!");
   };
 
   const isCellCaged = (r: number, c: number) => {
@@ -259,6 +261,8 @@ export default function Home() {
                 }
               }
 
+              const isHintCell = hintCells.some(([hr, hc]) => hr === rIndex && hc === cIndex);
+
               return (
                 <div key={`${rIndex}-${cIndex}`} className="relative w-12 h-12 sm:w-14 sm:h-14">
                   {isTopLeftOfCage && (
@@ -290,7 +294,10 @@ export default function Home() {
                       focus:outline-none focus:ring-4 focus:ring-inset focus:z-0 ${themeColors[variant].ring}
                       ${isRightBorder ? "border-r-2 border-r-slate-400" : "border-r border-r-slate-200"}
                       ${isBottomBorder ? "border-b-2 border-b-slate-400" : "border-b border-b-slate-200"}
-                      ${isSelectedForCage ? "bg-red-200 transition-colors" : matchingCage ? "bg-red-50" : isXDiagonal ? "bg-orange-50" : "bg-white"} 
+                      ${isHintCell ? "bg-emerald-200 shadow-inner z-0 transition-all duration-300" : 
+                        isSelectedForCage ? "bg-red-200 transition-colors z-0" : 
+                        matchingCage ? "bg-red-50 z-0" : 
+                        isXDiagonal ? "bg-orange-50 z-0" : "bg-white z-0"}
                     `}
                   />
                 </div>
