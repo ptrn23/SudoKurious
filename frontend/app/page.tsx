@@ -199,6 +199,7 @@ export default function Home() {
               setIsDeletingCage(!isDeletingCage);
               setIsAddingCage(false);
               setSelectedCells([]);
+              setHintCells([]);
               setCageSumInput("");
             }}
           >
