@@ -3,6 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
 
+from ai.heuristics import find_naked_single
+
 app = FastAPI()
 
 app.add_middleware(
@@ -24,26 +26,24 @@ class SudokuRequest(BaseModel):
 
 @app.post("/api/get-hint")
 def get_hint(request: SudokuRequest):
-    print("BOARD RECEIVED!")
-    print(f"Variant: {request.variant.upper()}")
+    naked_single_result = find_naked_single(request.board)
     
-    if request.variant == "killer":
-        print(f"Total Cages Received: {len(request.cages)}")
-        for i, cage in enumerate(request.cages):
-            print(f"  Cage {i+1} -> Sum: {cage.sum}, Coordinates: {cage.cells}")
-    
+    if naked_single_result:
+        row, col, value, explanation = naked_single_result
+        print(f"Hint found: Naked Single at ({row}, {col}) -> {value}")
         return {
             "status": "success",
-            "technique_used": "handshake_test",
-            "highlight_cells": [[0, 0]],
-            "suggested_value": 7,
-            "explanation_text": f"Success! Backend received {request.variant.upper()} mode with {len(request.cages)} cages!"
+            "technique_used": "Naked Single",
+            "highlight_cells": [[row, col]],
+            "suggested_value": value,
+            "explanation_text": explanation
         }
     
+    print("No Naked Single found.")
     return {
-        "status": "success",
-        "technique_used": "handshake_test",
-        "highlight_cells": [[0, 0]],
-        "suggested_value": 7,
-        "explanation_text": f"Success! Backend received {request.variant.upper()} board!"
+        "status": "pending",
+        "technique_used": "none",
+        "highlight_cells": [],
+        "suggested_value": None,
+        "explanation_text": "Hmm, I couldn't find a simple 'Naked Single' here."
     }
