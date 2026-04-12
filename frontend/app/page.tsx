@@ -92,7 +92,8 @@ export default function Home() {
     setHintCells([]);
     
     try {
-      const response = await fetch("http://localhost:8000/api/get-hint", {
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+      const response = await fetch(`${baseUrl}/api/get-hint`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
