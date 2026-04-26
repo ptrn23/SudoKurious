@@ -60,48 +60,79 @@ class GeneticSudokuSolver:
                 child.append(copy.deepcopy(parent2[r]))
         return child
 
-    def _mutate(self, board, mutation_rate=0.1):
+    def _get_broken_columns(self, board):
+        broken_cols = []
+        for c in range(9):
+            col_values = [board[r][c] for r in range(9)]
+            if len(set(col_values)) < 9:
+                broken_cols.append(c)
+        return broken_cols
+
+    def _mutate(self, board, mutation_rate=0.15):
+        broken_cols = self._get_broken_columns(board)
+        
         for r in range(9):
             if random.random() < mutation_rate:
                 movable_cols = [c for c in range(9) if not self.fixed_cells[r][c]]
                 
                 if len(movable_cols) >= 2:
-                    c1, c2 = random.sample(movable_cols, 2)
+                    broken_movable = [c for c in movable_cols if c in broken_cols]
+                    
+                    if broken_movable and len(broken_movable) < len(movable_cols):
+                        c1 = random.choice(broken_movable)
+                        movable_cols.remove(c1)
+                        c2 = random.choice(movable_cols)
+                    else:
+                        c1, c2 = random.sample(movable_cols, 2)
+                        
                     board[r][c1], board[r][c2] = board[r][c2], board[r][c1]
         return board
 
     def solve(self):
-        """The main evolutionary loop."""
         print(f"Initializing Population ({self.pop_size} boards)...")
         population = [self._create_individual() for _ in range(self.pop_size)]
+
+        stagnation_counter = 0
+        previous_best = 999
         
         for generation in range(self.max_generations):
             graded_pop = [(self._calculate_fitness(board), board) for board in population]
-            
             graded_pop.sort(key=lambda x: x[0])
             
             best_fitness = graded_pop[0][0]
             best_board = graded_pop[0][1]
-            
-            if generation % 10 == 0:
-                print(f"Generation {generation} | Best Fitness (Errors): {best_fitness}")
-            
-            if best_fitness == 0:
-                print(f"\nSUCCESS! Evolution solved the board in {generation} generations!")
-                return best_board
-                
+
             elite_count = int(self.pop_size * 0.2)
             elites = [item[1] for item in graded_pop[:elite_count]]
+
+            if best_fitness == previous_best:
+                stagnation_counter += 1
+            else:
+                stagnation_counter = 0
+                previous_best = best_fitness
+
+            current_mutation = 0.30 if stagnation_counter > 15 else 0.15
+            
+            if stagnation_counter > 50:
+                print(f"Stuck at {best_fitness} errors! Triggering Mass Extinction...")
+                population = elites[:2] + [self._create_individual() for _ in range(self.pop_size - 2)]
+                stagnation_counter = 0
+                continue
+            
+            if generation % 10 == 0:
+                print(f"Generation {generation} | Best Fitness: {best_fitness} | Mut Rate: {current_mutation}")
+            
+            if best_fitness == 0:
+                print(f"\nSUCCESS! Memetic evolution solved the board in {generation} generations!")
+                return best_board
             
             next_generation = []
             next_generation.extend(elites[:2]) 
             
             while len(next_generation) < self.pop_size:
                 parent1, parent2 = random.sample(elites, 2)
-                
                 child = self._crossover(parent1, parent2)
-                child = self._mutate(child, mutation_rate=0.2)
-                
+                child = self._mutate(child, mutation_rate=current_mutation)
                 next_generation.append(child)
                 
             population = next_generation
