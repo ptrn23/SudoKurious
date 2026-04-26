@@ -13,6 +13,7 @@ export default function Home() {
   const [variant, setVariant] = useState<"standard" | "x-sudoku" | "killer">("standard");
   const [hint, setHint] = useState("Click 'Get Hint' to test the AI!");
   const [hintCells, setHintCells] = useState<[number, number][]>([]);
+  const [difficulty, setDifficulty] = useState<number | null>(null);
   
   const [cages, setCages] = useState<{ sum: number; cells: [number, number][] }[]>([]);
   const [isAddingCage, setIsAddingCage] = useState(false);
@@ -107,6 +108,10 @@ export default function Home() {
       
       if (data.highlight_cells) {
         setHintCells(data.highlight_cells);
+      }
+
+      if (data.difficulty_score !== undefined) {
+        setDifficulty(data.difficulty_score);
       }
       
     } catch (error) {
@@ -319,6 +324,19 @@ export default function Home() {
       <div className="mt-8 p-6 bg-white rounded-2xl w-full max-w-md shadow-md border border-slate-100 text-center">
         <p className={`${outfit.className} text-slate-700 font-medium leading-relaxed`}>{hint}</p>
       </div>
+
+      {difficulty !== null && (
+        <div className="mt-4 p-4 bg-white rounded-2xl w-full max-w-md shadow-md border border-slate-100 text-center transition-all duration-500 animate-fade-in-up">
+          <p className={`${outfit.className} text-xs text-slate-400 uppercase tracking-widest font-bold mb-1`}>
+            DIFFICULTY
+          </p>
+          <p className={`${outfit.className} text-slate-700 font-medium`}>
+            Estimated Score: 
+            <span className="text-xl font-bold text-indigo-600 ml-2">{difficulty.toFixed(1)}</span>
+            <span className="text-sm text-slate-400"> / 8.5</span>
+          </p>
+        </div>
+      )}
 
     </main>
   );
