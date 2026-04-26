@@ -16,7 +16,7 @@ class SudokuDifficultyPredictor(nn.Module):
         self.bn3 = nn.BatchNorm2d(128)
         
         self.fc1 = nn.Linear(10368 + 1, 256)
-        self.dropout = nn.Dropout(0.3) 
+        self.dropout = nn.Dropout(0.5)
         self.fc2 = nn.Linear(256, 64)
         self.fc3 = nn.Linear(64, 1)
 

@@ -26,6 +26,7 @@ def load_data_with_split(npz_path, batch_size=256):
     
     balanced_idx = np.concatenate([balanced_zeros_idx, non_zeros_idx])
     np.random.shuffle(balanced_idx)
+    balanced_idx = balanced_idx[:400000]
     
     puzzles_np = puzzles_np[balanced_idx]
     ratings_np = ratings_np[balanced_idx]
@@ -55,7 +56,7 @@ def train_model():
     model = SudokuDifficultyPredictor().to(device)
     criterion = nn.L1Loss() 
     
-    optimizer = optim.Adam(model.parameters(), lr=0.0005) 
+    optimizer = optim.Adam(model.parameters(), lr=0.0005, weight_decay=1e-5)
     
     train_loader, val_loader = load_data_with_split("data/sudoku_dataset.npz")
     epochs = 5 
@@ -80,7 +81,7 @@ def train_model():
             optimizer.step()
             
             train_loss += loss.item()
-            if batch_idx % 1000 == 999:
+            if batch_idx % 100 == 99:
                 print(f"Epoch [{epoch+1}/{epochs}], Train Batch [{batch_idx+1}/{len(train_loader)}], Train MAE: {loss.item():.4f}")
         
         avg_train_loss = train_loss / len(train_loader)
