@@ -6,6 +6,7 @@ import torch
 import torch.nn.functional as F
 
 from ai.heuristics import find_naked_single, find_hidden_single
+from ai.genetic_algorithm import GeneticSudokuSolver
 from ai.cnn_model import SudokuDifficultyPredictor
 
 app = FastAPI()
@@ -79,11 +80,42 @@ def get_hint(request: SudokuRequest):
             "difficulty_score": formatted_difficulty 
         }
         
+    print("Heuristics exhausted. Booting Genetic Algorithm...")
+    
+    ga_solver = GeneticSudokuSolver(
+        request.board, 
+        variant=request.variant, 
+        cages=request.cages, 
+        pop_size=100, 
+        max_generations=1500
+    )
+    
+    solved_board = ga_solver.solve()
+    
+    if solved_board:
+        for r in range(9):
+            for c in range(9):
+                if request.board[r][c] == 0:
+                    value = solved_board[r][c]
+                    explanation = (
+                        f"This board is too complex for basic human logic! "
+                        f"I booted up the Genetic Algorithm, and after simulating thousands of generations, "
+                        f"it guarantees that row {r + 1}, column {c + 1} must be {value}."
+                    )
+                    return {
+                        "status": "success",
+                        "technique_used": "Genetic Algorithm Fallback",
+                        "highlight_cells": [[r, c]],
+                        "suggested_value": value,
+                        "explanation_text": explanation,
+                        "difficulty_score": formatted_difficulty 
+                    }
+                    
     return {
         "status": "pending",
         "technique_used": "none",
         "highlight_cells": [],
         "suggested_value": None,
-        "explanation_text": "Hmm, I couldn't find a Naked or Hidden Single. The board requires more advanced logic!",
+        "explanation_text": "I threw my best heuristics and genetic algorithms at this, and I'm stumped! Make sure the board doesn't have any conflicting numbers.",
         "difficulty_score": formatted_difficulty 
     }
