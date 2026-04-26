@@ -1,7 +1,7 @@
-def get_candidates(board, row, col):
+def get_candidates(board, row, col, variant="standard", cages=None):
     if board[row][col] != 0:
         return set()
-    
+
     candidates = set(range(1, 10))
     candidates -= set(board[row])
     candidates -= set(board[r][col] for r in range(9))
@@ -11,33 +11,50 @@ def get_candidates(board, row, col):
         for c in range(start_col, start_col + 3):
             candidates.discard(board[r][c])
 
+    if variant == "x-sudoku":
+        if row == col:
+            for i in range(9):
+                candidates.discard(board[i][i])
+        if row + col == 8:
+            for i in range(9):
+                candidates.discard(board[i][8 - i])
+                
+    if variant == "killer" and cages:
+        for cage in cages:
+            cage_cells = cage.cells if hasattr(cage, 'cells') else cage['cells']
+            
+            if [row, col] in cage_cells:
+                for r, c in cage_cells:
+                    candidates.discard(board[r][c])
+                break
+
     return candidates
 
 
-def find_naked_single(board):
+def find_naked_single(board, variant="standard", cages=None):
     for row in range(9):
         for col in range(9):
             if board[row][col] == 0:
-                candidates = get_candidates(board, row, col)
+                candidates = get_candidates(board, row, col, variant, cages)
                 
                 if len(candidates) == 1:
                     value = candidates.pop()
                     explanation = (
                         f"Look at row {row + 1}, column {col + 1}. "
-                        f"Because of the other numbers in its row, column, and 3x3 box, "
+                        f"Based on the standard and {variant} variant rules, "
                         f"the only possible number that can fit here is {value}."
                     )
                     return (row, col, value, explanation)
-                    
+
     return None
 
-def find_hidden_single(board):
+def find_hidden_single(board, variant="standard", cages=None):
     # check rows
     for row in range(9):
         for value in range(1, 10):
             possible_cols = []
             for col in range(9):
-                if board[row][col] == 0 and value in get_candidates(board, row, col):
+                if board[row][col] == 0 and value in get_candidates(board, row, col, variant, cages):
                     possible_cols.append(col)
                     
             if len(possible_cols) == 1:
@@ -45,7 +62,7 @@ def find_hidden_single(board):
                 explanation = (
                     f"Look at row {row + 1}. "
                     f"The number {value} can only be placed in column {col + 1} "
-                    f"because all other empty cells in this row are blocked by a {value} in their intersecting column or box."
+                    f"because all other empty cells are blocked by the {variant} rules."
                 )
                 return (row, col, value, explanation)
 
@@ -54,7 +71,7 @@ def find_hidden_single(board):
         for value in range(1, 10):
             possible_rows = []
             for row in range(9):
-                if board[row][col] == 0 and value in get_candidates(board, row, col):
+                if board[row][col] == 0 and value in get_candidates(board, row, col, variant, cages):
                     possible_rows.append(row)
                     
             if len(possible_rows) == 1:
@@ -75,7 +92,7 @@ def find_hidden_single(board):
                 
                 for r in range(start_row, start_row + 3):
                     for c in range(start_col, start_col + 3):
-                        if board[r][c] == 0 and value in get_candidates(board, r, c):
+                        if board[r][c] == 0 and value in get_candidates(board, r, c, variant, cages):
                             possible_cells.append((r, c))
                             
                 if len(possible_cells) == 1:

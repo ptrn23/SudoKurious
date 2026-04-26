@@ -53,7 +53,7 @@ def get_hint(request: SudokuRequest):
     formatted_difficulty = round(predicted_difficulty, 1)
     print(f"CNN Predicted Difficulty: {formatted_difficulty}")
     
-    naked_single_result = find_naked_single(request.board)
+    naked_single_result = find_naked_single(request.board, request.variant, request.cages)
     if naked_single_result:
         row, col, value, explanation = naked_single_result
         print(f"Hint found: Naked Single at ({row}, {col}) -> {value}")
@@ -66,7 +66,7 @@ def get_hint(request: SudokuRequest):
             "difficulty_score": formatted_difficulty 
         }
 
-    hidden_single_result = find_hidden_single(request.board)
+    hidden_single_result = find_hidden_single(request.board, request.variant, request.cages)
     if hidden_single_result:
         row, col, value, explanation = hidden_single_result
         print(f"Hint found: Hidden Single at ({row}, {col}) -> {value}")
