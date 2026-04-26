@@ -6,6 +6,21 @@ import { Grid3X3, X as XIcon, Calculator, Plus, Trash2, Eraser } from "lucide-re
 const outfit = Outfit({ subsets: ["latin"] });
 const newsreader = Newsreader({ subsets: ["latin"], style: ['normal', 'italic'] });
 
+const SAMPLE_BOARDS = [
+  {
+    name: "Easy",
+    gridString: "...81.....2........1.9..7...7..25.934.2............5...975.....563.....4......68."
+  },
+  {
+    name: "Medium",
+    gridString: "38.1.........5.6.....9....3.4.........5.18.......9.561.6..2478.8.......6..4.8..2."
+  },
+  {
+    name: "Hard",
+    gridString: "....3.61.4..67...33..8....7..4.....9..7..3.46.2.....8...1..9.3..85.........26...."
+  }
+];
+
 export default function Home() {
   const [board, setBoard] = useState(
     Array(9).fill(null).map(() => Array(9).fill(0))
@@ -86,6 +101,32 @@ export default function Home() {
   const handleMouseUp = () => {
     if (!isAddingCage) return;
     setIsDrawing(false);
+  };
+
+  const loadSampleBoard = (gridString: string) => {
+    const newBoard = Array(9).fill(0).map(() => Array(9).fill(0));
+    
+    for (let i = 0; i < 81; i++) {
+      const row = Math.floor(i / 9);
+      const col = i % 9;
+      const char = gridString[i];
+      
+      if (char >= '1' && char <= '9') {
+        newBoard[row][col] = parseInt(char, 10);
+      }
+    }
+    
+    setBoard(newBoard);
+    setHint("Click 'Get Hint' to ask the AI!");
+    setHintCells([]);
+    setDifficulty(null);
+  };
+
+  const clearBoard = () => {
+    setBoard(Array(9).fill(0).map(() => Array(9).fill(0)));
+    setHint("Click 'Get Hint' to ask the AI!");
+    setHintCells([]);
+    setDifficulty(null);
   };
 
   const fetchHint = async () => {
@@ -314,9 +355,34 @@ export default function Home() {
         </div>
       </div>
       
+      <div className="mt-6 flex flex-col items-center gap-3 w-full max-w-md">
+        <p className={`${outfit.className} text-xs font-bold text-slate-400 uppercase tracking-widest`}>
+          Sample Boards
+        </p>
+        
+        <div className="flex flex-wrap justify-center gap-2">
+          {SAMPLE_BOARDS.map((sample, index) => (
+            <button
+              key={index}
+              onClick={() => loadSampleBoard(sample.gridString)}
+              className={`${outfit.className} px-6 py-2.5 font-bold rounded-full bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-sm transition-colors border border-indigo-100 shadow-sm`}
+            >
+              {sample.name}
+            </button>
+          ))}
+          
+          <button
+            onClick={clearBoard}
+            className={`${outfit.className} px-6 py-2.5 font-bold rounded-full bg-red-50 hover:bg-red-100 text-red-600 text-sm transition-colors border border-red-100 shadow-sm`}
+          >
+            Clear Grid
+          </button>
+        </div>
+      </div>
+      
       <button 
         onClick={fetchHint}
-        className={`${outfit.className} px-8 py-3 text-white font-bold rounded-full shadow-md transition-colors duration-200 ${themeColors[variant].button}`}
+        className={`${outfit.className} mt-4 px-8 py-3 text-white font-bold rounded-full shadow-md transition-colors duration-200 ${themeColors[variant].button}`}
       >
         Get Hint
       </button>
