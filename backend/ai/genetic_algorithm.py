@@ -114,13 +114,13 @@ class GeneticSudokuSolver:
             current_mutation = 0.30 if stagnation_counter > 15 else 0.15
             
             if stagnation_counter > 50:
-                print(f"Stuck at {best_fitness} errors! Triggering Mass Extinction...")
+                # print(f"Stuck at {best_fitness} errors! Triggering Mass Extinction...")
                 population = elites[:2] + [self._create_individual() for _ in range(self.pop_size - 2)]
                 stagnation_counter = 0
                 continue
             
-            if generation % 10 == 0:
-                print(f"Generation {generation} | Best Fitness: {best_fitness} | Mut Rate: {current_mutation}")
+            # if generation % 10 == 0:
+            #     print(f"Generation {generation} | Best Fitness: {best_fitness} | Mut Rate: {current_mutation}")
             
             if best_fitness == 0:
                 print(f"\nSUCCESS! Memetic evolution solved the board in {generation} generations!")
