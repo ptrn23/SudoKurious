@@ -355,9 +355,34 @@ export default function Home() {
         </div>
       </div>
       
+      <div className="mt-6 flex flex-col items-center gap-3 w-full max-w-md">
+        <p className={`${outfit.className} text-xs font-bold text-slate-400 uppercase tracking-widest`}>
+          Sample Boards
+        </p>
+        
+        <div className="flex flex-wrap justify-center gap-2">
+          {SAMPLE_BOARDS.map((sample, index) => (
+            <button
+              key={index}
+              onClick={() => loadSampleBoard(sample.gridString)}
+              className={`${outfit.className} px-6 py-2.5 font-bold rounded-full bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-sm transition-colors border border-indigo-100 shadow-sm`}
+            >
+              {sample.name}
+            </button>
+          ))}
+          
+          <button
+            onClick={clearBoard}
+            className={`${outfit.className} px-6 py-2.5 font-bold rounded-full bg-red-50 hover:bg-red-100 text-red-600 text-sm transition-colors border border-red-100 shadow-sm`}
+          >
+            Clear Grid
+          </button>
+        </div>
+      </div>
+      
       <button 
         onClick={fetchHint}
-        className={`${outfit.className} px-8 py-3 text-white font-bold rounded-full shadow-md transition-colors duration-200 ${themeColors[variant].button}`}
+        className={`${outfit.className} mt-4 px-8 py-3 text-white font-bold rounded-full shadow-md transition-colors duration-200 ${themeColors[variant].button}`}
       >
         Get Hint
       </button>
