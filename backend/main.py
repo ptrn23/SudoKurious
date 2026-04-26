@@ -5,7 +5,7 @@ from typing import List, Optional
 import torch
 import torch.nn.functional as F
 
-from ai.heuristics import find_naked_single
+from ai.heuristics import find_naked_single, find_hidden_single
 from ai.cnn_model import SudokuDifficultyPredictor
 
 app = FastAPI()
@@ -53,8 +53,7 @@ def get_hint(request: SudokuRequest):
     formatted_difficulty = round(predicted_difficulty, 1)
     print(f"CNN Predicted Difficulty: {formatted_difficulty}")
     
-    naked_single_result = find_naked_single(request.board)
-    
+    naked_single_result = find_naked_single(request.board, request.variant, request.cages)
     if naked_single_result:
         row, col, value, explanation = naked_single_result
         print(f"Hint found: Naked Single at ({row}, {col}) -> {value}")
@@ -64,7 +63,20 @@ def get_hint(request: SudokuRequest):
             "highlight_cells": [[row, col]],
             "suggested_value": value,
             "explanation_text": explanation,
-            "difficulty_score": formatted_difficulty
+            "difficulty_score": formatted_difficulty 
+        }
+
+    hidden_single_result = find_hidden_single(request.board, request.variant, request.cages)
+    if hidden_single_result:
+        row, col, value, explanation = hidden_single_result
+        print(f"Hint found: Hidden Single at ({row}, {col}) -> {value}")
+        return {
+            "status": "success",
+            "technique_used": "Hidden Single",
+            "highlight_cells": [[row, col]],
+            "suggested_value": value,
+            "explanation_text": explanation,
+            "difficulty_score": formatted_difficulty 
         }
         
     return {
@@ -72,6 +84,6 @@ def get_hint(request: SudokuRequest):
         "technique_used": "none",
         "highlight_cells": [],
         "suggested_value": None,
-        "explanation_text": "Hmm, I couldn't find a simple 'Naked Single' here.",
-        "difficulty_score": formatted_difficulty
+        "explanation_text": "Hmm, I couldn't find a Naked or Hidden Single. The board requires more advanced logic!",
+        "difficulty_score": formatted_difficulty 
     }
