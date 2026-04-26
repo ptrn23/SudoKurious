@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
+import torch.nn.functional as F
 from torch.utils.data import TensorDataset, DataLoader
 from sklearn.model_selection import train_test_split
 import numpy as np
@@ -28,22 +29,22 @@ def load_data_with_split(npz_path, batch_size=256):
     
     puzzles_np = puzzles_np[balanced_idx]
     ratings_np = ratings_np[balanced_idx]
-    
     print(f"Balanced Dataset Size: {len(ratings_np)} puzzles.")
     
-    # normalize
-    X_tensor = torch.tensor(puzzles_np, dtype=torch.float32) / 9.0 
-    y_tensor = torch.tensor(ratings_np, dtype=torch.float32).view(-1, 1)
-    X_tensor = X_tensor.unsqueeze(1)
+    X_tensor = torch.tensor(puzzles_np, dtype=torch.long)
+    empty_counts = (X_tensor == 0).sum(dim=(1, 2)).to(torch.float32).view(-1, 1) / 81.0
+    X_one_hot = F.one_hot(X_tensor, num_classes=10).to(torch.float32)
+    X_one_hot = X_one_hot.permute(0, 3, 1, 2)
     
-    # 80/20 split, randomize
+    y_tensor = torch.tensor(ratings_np, dtype=torch.float32).view(-1, 1)
+    
     print("Splitting into 80% Training and 20% Validation...")
-    X_train, X_val, y_train, y_val = train_test_split(
-        X_tensor, y_tensor, test_size=0.2, random_state=42
+    X_train, X_val, counts_train, counts_val, y_train, y_val = train_test_split(
+        X_one_hot, empty_counts, y_tensor, test_size=0.2, random_state=42
     )
     
-    train_loader = DataLoader(TensorDataset(X_train, y_train), batch_size=batch_size, shuffle=True)
-    val_loader = DataLoader(TensorDataset(X_val, y_val), batch_size=batch_size, shuffle=False)
+    train_loader = DataLoader(TensorDataset(X_train, counts_train, y_train), batch_size=batch_size, shuffle=True)
+    val_loader = DataLoader(TensorDataset(X_val, counts_val, y_val), batch_size=batch_size, shuffle=False)
     
     return train_loader, val_loader
 
@@ -66,11 +67,14 @@ def train_model():
         
         model.train()
         train_loss = 0.0
-        for batch_idx, (boards, ratings) in enumerate(train_loader):
-            boards, ratings = boards.to(device), ratings.to(device)
+        
+        for batch_idx, (boards, counts, ratings) in enumerate(train_loader):
+            boards, counts, ratings = boards.to(device), counts.to(device), ratings.to(device)
             
             optimizer.zero_grad()
-            predictions = model(boards)
+            
+            predictions = model(boards, counts)
+            
             loss = criterion(predictions, ratings)
             loss.backward()
             optimizer.step()
@@ -84,9 +88,9 @@ def train_model():
         model.eval()
         val_loss = 0.0
         with torch.no_grad():
-            for boards, ratings in val_loader:
-                boards, ratings = boards.to(device), ratings.to(device)
-                predictions = model(boards)
+            for boards, counts, ratings in val_loader:
+                boards, counts, ratings = boards.to(device), counts.to(device), ratings.to(device)
+                predictions = model(boards, counts)
                 loss = criterion(predictions, ratings)
                 val_loss += loss.item()
                 
@@ -96,7 +100,7 @@ def train_model():
         print(f"*** Epoch {epoch+1} | Time: {epoch_time:.1f}s | Train MAE: {avg_train_loss:.4f} | VAL MAE: {avg_val_loss:.4f} ***\n")
         
     torch.save(model.state_dict(), "ai/cnn_weights.pth")
-    print("Training complete! Upgraded model saved.")
+    print("Training complete! Deep model saved.")
 
 if __name__ == "__main__":
     train_model()
