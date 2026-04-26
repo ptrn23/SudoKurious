@@ -50,6 +50,64 @@ class GeneticSudokuSolver:
             pass
 
         return errors
+    
+    def _crossover(self, parent1, parent2):
+        child = []
+        for r in range(9):
+            if random.random() < 0.5:
+                child.append(copy.deepcopy(parent1[r]))
+            else:
+                child.append(copy.deepcopy(parent2[r]))
+        return child
+
+    def _mutate(self, board, mutation_rate=0.1):
+        for r in range(9):
+            if random.random() < mutation_rate:
+                movable_cols = [c for c in range(9) if not self.fixed_cells[r][c]]
+                
+                if len(movable_cols) >= 2:
+                    c1, c2 = random.sample(movable_cols, 2)
+                    board[r][c1], board[r][c2] = board[r][c2], board[r][c1]
+        return board
+
+    def solve(self):
+        """The main evolutionary loop."""
+        print(f"Initializing Population ({self.pop_size} boards)...")
+        population = [self._create_individual() for _ in range(self.pop_size)]
+        
+        for generation in range(self.max_generations):
+            graded_pop = [(self._calculate_fitness(board), board) for board in population]
+            
+            graded_pop.sort(key=lambda x: x[0])
+            
+            best_fitness = graded_pop[0][0]
+            best_board = graded_pop[0][1]
+            
+            if generation % 10 == 0:
+                print(f"Generation {generation} | Best Fitness (Errors): {best_fitness}")
+            
+            if best_fitness == 0:
+                print(f"\nSUCCESS! Evolution solved the board in {generation} generations!")
+                return best_board
+                
+            elite_count = int(self.pop_size * 0.2)
+            elites = [item[1] for item in graded_pop[:elite_count]]
+            
+            next_generation = []
+            next_generation.extend(elites[:2]) 
+            
+            while len(next_generation) < self.pop_size:
+                parent1, parent2 = random.sample(elites, 2)
+                
+                child = self._crossover(parent1, parent2)
+                child = self._mutate(child, mutation_rate=0.2)
+                
+                next_generation.append(child)
+                
+            population = next_generation
+            
+        print("\nEvolution failed to find a perfect solution within the generation limit.")
+        return None
 
     def test_initialization(self):
         print("Creating an individual...")
@@ -77,5 +135,15 @@ if __name__ == "__main__":
         [0,0,0,0,8,0,0,7,9]
     ]
     
-    ga = GeneticSudokuSolver(test_grid)
-    ga.test_initialization()
+    ga = GeneticSudokuSolver(test_grid, pop_size=200, max_generations=5000)
+    
+    import time
+    start = time.time()
+    solution = ga.solve()
+    end = time.time()
+    
+    if solution:
+        print(f"\nTime taken: {end - start:.2f} seconds")
+        print("Final Solved Board:")
+        for row in solution:
+            print(row)
