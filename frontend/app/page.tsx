@@ -160,6 +160,25 @@ export default function Home() {
     }
   };
 
+  const checkSudoku = async () => {
+    try {
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+      const response = await fetch(`${baseUrl}/api/check-sudoku`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          variant: variant, 
+          board: board,
+          cages: variant === "killer" ? cages : [] 
+        }),
+      });
+      const data = await response.json();
+      console.log(data)
+    } catch (error) {
+      console.log(error)
+    }
+  };
+
   return (
     <main className="flex min-h-screen flex-col items-center py-16 bg-slate-50">
       
@@ -403,7 +422,12 @@ export default function Home() {
           </p>
         </div>
       )}
-
+    <button
+            onClick={checkSudoku}
+            className={`${outfit.className} px-6 py-2.5 font-bold rounded-full bg-red-50 hover:bg-red-100 text-red-600 text-sm transition-colors border border-red-100 shadow-sm`}
+          >
+            Check Sudoku for Errors
+          </button>
     </main>
   );
 }

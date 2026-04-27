@@ -5,7 +5,7 @@ from typing import List, Optional
 import torch
 import torch.nn.functional as F
 
-from ai.heuristics import find_naked_single, find_hidden_single
+from ai.heuristics import get_best_h_move, check_sudoku
 from ai.genetic_algorithm import GeneticSudokuSolver
 from ai.cnn_model import SudokuDifficultyPredictor
 
@@ -54,26 +54,13 @@ def get_hint(request: SudokuRequest):
     formatted_difficulty = round(predicted_difficulty, 1)
     print(f"CNN Predicted Difficulty: {formatted_difficulty}")
     
-    naked_single_result = find_naked_single(request.board, request.variant, request.cages)
-    if naked_single_result:
-        row, col, value, explanation = naked_single_result
+    h_result = get_best_h_move(request.board, request.variant, request.cages)
+    if h_result:
+        row, col, value, explanation = h_result.return_summary()
         print(f"Hint found: Naked Single at ({row}, {col}) -> {value}")
         return {
             "status": "success",
             "technique_used": "Naked Single",
-            "highlight_cells": [[row, col]],
-            "suggested_value": value,
-            "explanation_text": explanation,
-            "difficulty_score": formatted_difficulty 
-        }
-
-    hidden_single_result = find_hidden_single(request.board, request.variant, request.cages)
-    if hidden_single_result:
-        row, col, value, explanation = hidden_single_result
-        print(f"Hint found: Hidden Single at ({row}, {col}) -> {value}")
-        return {
-            "status": "success",
-            "technique_used": "Hidden Single",
             "highlight_cells": [[row, col]],
             "suggested_value": value,
             "explanation_text": explanation,
@@ -119,3 +106,19 @@ def get_hint(request: SudokuRequest):
         "explanation_text": "I threw my best heuristics and genetic algorithms at this, and I'm stumped! Make sure the board doesn't have any conflicting numbers.",
         "difficulty_score": formatted_difficulty 
     }
+    
+@app.post("/api/check-sudoku")
+def get_hint(request: SudokuRequest):
+    print(f"\n--- CHECKER REQUEST: {request.variant.upper()} ---")
+    
+    error_msg = check_sudoku(request.board, request.variant, request.cages)
+    if error_msg:
+        # paul, checks return_summary method ng class incorrectSudoku para alam mu ano rinereturn or ano usto mo pang i return
+        offending_locs, value, explanation = error_msg.return_summary()
+        return {
+            "status": "success",
+            "highlight_cells": offending_locs,
+            "error_value": value,
+            "explanation_text": explanation,
+        }
+        
