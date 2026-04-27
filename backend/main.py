@@ -114,6 +114,12 @@ def get_hint(request: SudokuRequest):
     error_msg = check_sudoku(request.board, request.variant, request.cages)
     if error_msg:
         # paul, checks return_summary method ng class incorrectSudoku para alam mu ano rinereturn or ano usto mo pang i return
+        if (error_msg == "Complete Sudoku"):
+            return {
+                "status": "success",
+                "explanation_text": "Complete Sudoku",
+            }
+        
         offending_locs, value, explanation = error_msg.return_summary()
         return {
             "status": "success",
