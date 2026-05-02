@@ -5,17 +5,17 @@ import os
 
 def parse_board(board):
     board = str(board).replace('.', '0')
-    # use int8 to save memory since values are between 0-9
+    board = board.zfill(81)
     return np.array([int(char) for char in board], dtype=np.int8).reshape((9, 9))
 
 def process_and_save_dataset(csv_path, output_dir="data", limit=None):
     print(f"Loading dataset from {csv_path}...")
     start_time = time.time()
-    df = pd.read_csv(csv_path, nrows=limit) 
+    
+    df = pd.read_csv(csv_path, nrows=limit, dtype={'puzzle': str, 'solution': str}) 
     
     print("Converting strings to 9x9 matrices...")
     X_puzzles = np.array([parse_board(b) for b in df['puzzle']])
-    y_solutions = np.array([parse_board(b) for b in df['solution']])
     y_ratings = df['difficulty'].values
     
     print("Saving to compressed NumPy file...")
@@ -25,7 +25,6 @@ def process_and_save_dataset(csv_path, output_dir="data", limit=None):
     np.savez_compressed(
         save_path,
         puzzles=X_puzzles,
-        solutions=y_solutions,
         ratings=y_ratings
     )
     
