@@ -18,6 +18,14 @@ const SAMPLE_BOARDS = [
   {
     name: "Hard",
     gridString: "3......6...4..2..9.5.4.....6351.......9.2.8..4.......1..2.49..........3.........7"
+  },
+  {
+    name: "Almost Complete",
+    gridString: "35976184.47298563186..34759185347926743629185296.58374928513467514876.93637492518"
+  },
+  {
+    name: "Complete",
+    gridString: "359761842472985631861234759185347926743629185296158374928513467514876293637492518"
   }
 ];
 
@@ -28,6 +36,7 @@ export default function Home() {
   const [variant, setVariant] = useState<"standard" | "x-sudoku" | "killer">("standard");
   const [hint, setHint] = useState("Click 'Get Hint' to test the AI!");
   const [hintCells, setHintCells] = useState<[number, number][]>([]);
+  const [errorCells, setErrorCells] = useState<[number, number][]>([]);
   const [difficulty, setDifficulty] = useState<number | null>(null);
   
   const [cages, setCages] = useState<{ sum: number; cells: [number, number][] }[]>([]);
@@ -48,6 +57,7 @@ export default function Home() {
     newBoard[row][col] = value === "" ? 0 : parseInt(value.slice(-1)) || 0;
     setBoard(newBoard);
     setHintCells([]); 
+    setErrorCells([]);
     setHint("Click 'Get Hint' to test the AI!");
   };
 
@@ -76,7 +86,6 @@ export default function Home() {
       );
       
       if (targetCageIndex !== -1) {
-        // Remove the clicked cage
         const updatedCages = [...cages];
         updatedCages.splice(targetCageIndex, 1);
         setCages(updatedCages);
@@ -119,6 +128,7 @@ export default function Home() {
     setBoard(newBoard);
     setHint("Click 'Get Hint' to ask the AI!");
     setHintCells([]);
+    setErrorCells([]);
     setDifficulty(null);
   };
 
@@ -126,12 +136,14 @@ export default function Home() {
     setBoard(Array(9).fill(0).map(() => Array(9).fill(0)));
     setHint("Click 'Get Hint' to ask the AI!");
     setHintCells([]);
+    setErrorCells([]);
     setDifficulty(null);
   };
 
   const fetchHint = async () => {
     setHint("Thinking...");
     setHintCells([]);
+    setErrorCells([]);
     
     try {
       const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -161,6 +173,10 @@ export default function Home() {
   };
 
   const checkSudoku = async () => {
+    setHint("Checking board...");
+    setHintCells([]);
+    setErrorCells([]);
+    
     try {
       const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
       const response = await fetch(`${baseUrl}/api/check-sudoku`, {
@@ -173,9 +189,15 @@ export default function Home() {
         }),
       });
       const data = await response.json();
-      console.log(data)
+      
+      setHint(data.explanation_text);
+      
+      if (data.status === "error" && data.highlight_cells) {
+        setErrorCells(data.highlight_cells);
+      }
+      
     } catch (error) {
-      console.log(error)
+      setHint("Error: Could not connect to the API.");
     }
   };
 
@@ -223,6 +245,7 @@ export default function Home() {
           Killer Sudoku
         </button>
       </div>
+
       {variant === "killer" && (
         <div className="mb-6 flex items-center space-x-3 animate-in fade-in slide-in-from-top-2 duration-300">
           {isAddingCage ? (
@@ -247,7 +270,7 @@ export default function Home() {
               className={`${outfit.className} flex items-center px-4 py-2 bg-red-100 text-red-700 hover:bg-red-200 rounded-lg font-bold transition-colors text-sm`}
               onClick={() => {
                 setIsAddingCage(true);
-                setIsDeletingCage(false); // Ensure delete mode turns off
+                setIsDeletingCage(false);
               }}
             >
               <Plus className="w-4 h-4 mr-2" />
@@ -266,6 +289,7 @@ export default function Home() {
               setIsAddingCage(false);
               setSelectedCells([]);
               setHintCells([]);
+              setErrorCells([]);
               setCageSumInput("");
             }}
           >
@@ -329,6 +353,7 @@ export default function Home() {
               }
 
               const isHintCell = hintCells.some(([hr, hc]) => hr === rIndex && hc === cIndex);
+              const isErrorCell = errorCells.some(([er, ec]) => er === rIndex && ec === cIndex);
 
               return (
                 <div key={`${rIndex}-${cIndex}`} className="relative w-12 h-12 sm:w-14 sm:h-14">
@@ -361,7 +386,8 @@ export default function Home() {
                       focus:outline-none focus:ring-4 focus:ring-inset focus:z-0 ${themeColors[variant].ring}
                       ${isRightBorder ? "border-r-2 border-r-slate-400" : "border-r border-r-slate-200"}
                       ${isBottomBorder ? "border-b-2 border-b-slate-400" : "border-b border-b-slate-200"}
-                      ${isHintCell ? "bg-emerald-200 shadow-inner z-0 transition-all duration-300" : 
+                      ${isErrorCell ? "bg-red-200 text-red-900 shadow-inner z-0 transition-all duration-300" : 
+                        isHintCell ? "bg-emerald-200 shadow-inner z-0 transition-all duration-300" : 
                         isSelectedForCage ? "bg-red-200 transition-colors z-0" : 
                         matchingCage ? "bg-red-50 z-0" : 
                         isXDiagonal ? "bg-orange-50 z-0" : "bg-white z-0"}
@@ -392,19 +418,28 @@ export default function Home() {
           
           <button
             onClick={clearBoard}
-            className={`${outfit.className} px-6 py-2.5 font-bold rounded-full bg-red-50 hover:bg-red-100 text-red-600 text-sm transition-colors border border-red-100 shadow-sm`}
+            className={`${outfit.className} px-6 py-2.5 font-bold rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 text-sm transition-colors border border-slate-200 shadow-sm`}
           >
             Clear Grid
           </button>
         </div>
       </div>
-      
-      <button 
-        onClick={fetchHint}
-        className={`${outfit.className} mt-4 px-8 py-3 text-white font-bold rounded-full shadow-md transition-colors duration-200 ${themeColors[variant].button}`}
-      >
-        Get Hint
-      </button>
+
+      <div className="mt-6 flex gap-4 w-full max-w-md justify-center">
+        <button 
+          onClick={fetchHint}
+          className={`${outfit.className} px-8 py-3 text-white font-bold rounded-full shadow-md transition-colors duration-200 ${themeColors[variant].button}`}
+        >
+          Get Hint
+        </button>
+
+        <button
+          onClick={checkSudoku}
+          className={`${outfit.className} px-8 py-3 font-bold rounded-full bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 shadow-sm transition-colors duration-200`}
+        >
+          Check Board
+        </button>
+      </div>
 
       <div className="mt-8 p-6 bg-white rounded-2xl w-full max-w-md shadow-md border border-slate-100 text-center">
         <p className={`${outfit.className} text-slate-700 font-medium leading-relaxed`}>{hint}</p>
@@ -418,16 +453,10 @@ export default function Home() {
           <p className={`${outfit.className} text-slate-700 font-medium`}>
             Estimated Score: 
             <span className="text-xl font-bold text-indigo-600 ml-2">{difficulty.toFixed(1)}</span>
-            <span className="text-sm text-slate-400"> / 8.5</span>
+            <span className="text-sm text-slate-400"> / 5.0</span>
           </p>
         </div>
       )}
-    <button
-            onClick={checkSudoku}
-            className={`${outfit.className} px-6 py-2.5 font-bold rounded-full bg-red-50 hover:bg-red-100 text-red-600 text-sm transition-colors border border-red-100 shadow-sm`}
-          >
-            Check Sudoku for Errors
-          </button>
     </main>
   );
 }

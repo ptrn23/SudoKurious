@@ -203,7 +203,7 @@ def check_sudoku(board, variant="standard", cages=None):
             return createErrorMsg(not_unique, len(rightWing), loc_in_sudoku, "Right Wing error", rightWing)
     
     # check if sudoku is complete
-    h_cost = 0 # if huerestic cost == 0, then we are at the goal/complete sudoku
+    h_cos = 0 # if huerestic cost == 0, then we are at the goal/complete sudoku
     for box_i in range(0, N, 3):
         for box_j in range(0, N, 3):
             block =[]
@@ -222,7 +222,7 @@ def check_sudoku(board, variant="standard", cages=None):
         h_cos += row_col_cost(col)
         h_cos += row_col_cost(row)
     
-    if h_cost == 0:
+    if h_cos == 0:
         return "Complete Sudoku"
     return None
 

@@ -107,23 +107,40 @@ def get_hint(request: SudokuRequest):
     }
     
 @app.post("/api/check-sudoku")
-def get_hint(request: SudokuRequest):
+def check_sudoku_endpoint(request: SudokuRequest):
     print(f"\n--- CHECKER REQUEST: {request.variant.upper()} ---")
     
     error_msg = check_sudoku(request.board, request.variant, request.cages)
-    if error_msg:
-        # paul, checks return_summary method ng class incorrectSudoku para alam mu ano rinereturn or ano usto mo pang i return
-        if (error_msg == "Complete Sudoku"):
-            return {
-                "status": "success",
-                "explanation_text": "Complete Sudoku",
-            }
-        
-        offending_locs, value, explanation = error_msg.return_summary()
+    
+    if error_msg == "Complete Sudoku":
         return {
             "status": "success",
-            "highlight_cells": offending_locs,
+            "explanation_text": "Congratulations! The Sudoku is completely solved and valid!",
+            "highlight_cells": [],
+            "error_value": None
+        }
+    
+    elif error_msg:
+        offending_locs, value, raw_explanation = error_msg.return_summary()
+        
+        formatted_highlights = [list(loc) for loc in offending_locs]
+        
+        friendly_explanation = (
+            f"Rule Violation! There are multiple {value}s in the same "
+            f"{raw_explanation.lower().replace('error', '')}. "
+            f"Check the highlighted cells."
+        )
+        
+        return {
+            "status": "error",
+            "highlight_cells": formatted_highlights,
             "error_value": value,
-            "explanation_text": explanation,
+            "explanation_text": friendly_explanation,
         }
         
+    return {
+        "status": "valid",
+        "explanation_text": "Looking good so far! No conflicts detected.",
+        "highlight_cells": [],
+        "error_value": None
+    }
