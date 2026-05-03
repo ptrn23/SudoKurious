@@ -35,6 +35,20 @@ class SudokuRequest(BaseModel):
     board: List[List[int]]
     cages: Optional[List[Cage]] = []
 
+class HintResponse(BaseModel):
+    status: str
+    technique_used: str
+    highlight_cells: List[List[int]]
+    suggested_value: Optional[int] = None
+    explanation_text: str
+    difficulty_score: float
+
+class CheckResponse(BaseModel):
+    status: str
+    explanation_text: str
+    highlight_cells: Optional[List[List[int]]] = []
+    error_value: Optional[int] = None
+
 def predict_difficulty(grid):
     board_np = np.array(grid)
     
@@ -46,7 +60,7 @@ def predict_difficulty(grid):
     return round(final_difficulty, 1)
 
 
-@app.post("/api/get-hint")
+@app.post("/api/get-hint", response_model=HintResponse)
 def get_hint(request: SudokuRequest):
     print(f"\n--- NEW AI REQUEST: {request.variant.upper()} ---")
     
@@ -55,8 +69,8 @@ def get_hint(request: SudokuRequest):
     
     h_result = get_best_h_move(request.board, request.variant, request.cages)
     if h_result:
-        row, col, value, explanation = h_result.return_summary()
-        print(f"Hint found: Naked Single at ({row}, {col}) -> {value}")
+        row, col, value, explanation = h_result
+        print(f"Hint found at ({row}, {col}) -> {value}")
         return {
             "status": "success",
             "technique_used": "Naked Single",
@@ -106,7 +120,7 @@ def get_hint(request: SudokuRequest):
         "difficulty_score": formatted_difficulty 
     }
     
-@app.post("/api/check-sudoku")
+@app.post("/api/check-sudoku", response_model=CheckResponse)
 def check_sudoku_endpoint(request: SudokuRequest):
     print(f"\n--- CHECKER REQUEST: {request.variant.upper()} ---")
     
