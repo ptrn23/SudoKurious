@@ -99,7 +99,7 @@ def find_hidden_single(board, variant="standard", cages=None):
                     f"The number {value} can only be placed in row {row + 1} "
                     f"because all other empty cells in this column are blocked."
                 )
-                return (row, col, value, explanation)
+                return move(row, col, heurestic_cost_fxn(board, variant), 1, explanation, value)
 
     # check 3x3 boxes
     for box_row in range(3):
@@ -120,9 +120,10 @@ def find_hidden_single(board, variant="standard", cages=None):
                         f"The number {value} must go in row {r + 1}, column {c + 1} "
                         f"because it is the only cell in this box not blocked by another {value}."
                     )
-                    return move(row, col, heurestic_cost_fxn(board, variant), 1, explanation, value)
+                    return move(r, c, heurestic_cost_fxn(board, variant), 1, explanation, value)
 
     return None
+
 lst_of_techs = [find_naked_single, find_hidden_single, get_candidates]
 
 # ==================================================================================
