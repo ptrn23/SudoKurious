@@ -89,17 +89,17 @@ class GeneticSudokuSolver:
         return conflicts
 
     def _mutate(self, board, mutation_rate=0.15):
-        broken_cols = self._get_broken_columns(board)
+        conflicts = self._get_conflicting_cells(board)
         
         for r in range(9):
             if random.random() < mutation_rate:
                 movable_cols = [c for c in range(9) if not self.fixed_cells[r][c]]
                 
                 if len(movable_cols) >= 2:
-                    broken_movable = [c for c in movable_cols if c in broken_cols]
+                    conflicting_movable = [c for c in movable_cols if (r, c) in conflicts]
                     
-                    if broken_movable and len(broken_movable) < len(movable_cols):
-                        c1 = random.choice(broken_movable)
+                    if conflicting_movable and len(conflicting_movable) < len(movable_cols):
+                        c1 = random.choice(conflicting_movable)
                         movable_cols.remove(c1)
                         c2 = random.choice(movable_cols)
                     else:
