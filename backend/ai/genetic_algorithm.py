@@ -179,6 +179,8 @@ class GeneticSudokuSolver:
                 parent1, parent2 = random.sample(elites, 2)
                 child = self._crossover(parent1, parent2)
                 child = self._mutate(child, mutation_rate=current_mutation)
+                child = self._local_search(child)
+                
                 next_generation.append(child)
                 
             population = next_generation
