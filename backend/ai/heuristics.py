@@ -203,27 +203,9 @@ def check_sudoku(board, variant="standard", cages=None):
         if ((not_unique := getRepeatingNumber(rightWing)) != None):
             return createErrorMsg(not_unique, len(rightWing), loc_in_sudoku, "Right Wing error", rightWing)
     
-    # check if sudoku is complete
-    h_cos = 0 # if huerestic cost == 0, then we are at the goal/complete sudoku
-    for box_i in range(0, N, 3):
-        for box_j in range(0, N, 3):
-            block =[]
-            for i in range(0,3):
-                row = []
-                for j in range(0,3):
-                    row.append(board[box_i+i][box_j+j])
-                block.append(row)
-            h_cos += box_cost(block)
-    for i in range(N):
-        col = []
-        row = []
-        for j in range(N):
-            col.append(board[j][i])
-            row.append(board[i][j])
-        h_cos += row_col_cost(col)
-        h_cos += row_col_cost(row)
-    
-    if h_cos == 0:
+    has_empty_cells = any(0 in row for row in board)
+    h_cos = heurestic_cost_fxn(board, variant)
+    if not has_empty_cells and h_cos == 0:
         return "Complete Sudoku"
     return None
 
