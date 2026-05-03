@@ -38,6 +38,7 @@ export default function Home() {
   const [hintCells, setHintCells] = useState<[number, number][]>([]);
   const [errorCells, setErrorCells] = useState<[number, number][]>([]);
   const [difficulty, setDifficulty] = useState<number | null>(null);
+  const [isSolved, setIsSolved] = useState(false);
   
   const [cages, setCages] = useState<{ sum: number; cells: [number, number][] }[]>([]);
   const [isAddingCage, setIsAddingCage] = useState(false);
@@ -58,6 +59,7 @@ export default function Home() {
     setBoard(newBoard);
     setHintCells([]); 
     setErrorCells([]);
+    setIsSolved(false);
     setHint("Click 'Get Hint' to test the AI!");
   };
 
@@ -129,6 +131,7 @@ export default function Home() {
     setHint("Click 'Get Hint' to ask the AI!");
     setHintCells([]);
     setErrorCells([]);
+    setIsSolved(false);
     setDifficulty(null);
   };
 
@@ -137,6 +140,7 @@ export default function Home() {
     setHint("Click 'Get Hint' to ask the AI!");
     setHintCells([]);
     setErrorCells([]);
+    setIsSolved(false);
     setDifficulty(null);
   };
 
@@ -144,6 +148,7 @@ export default function Home() {
     setHint("Thinking...");
     setHintCells([]);
     setErrorCells([]);
+    setIsSolved(false);
     
     try {
       const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -166,6 +171,10 @@ export default function Home() {
       if (data.difficulty_score !== undefined) {
         setDifficulty(data.difficulty_score);
       }
+
+      if (data.explanation_text && data.explanation_text.includes("Congratulations")) {
+        setIsSolved(true);
+      }
       
     } catch (error) {
       setHint("Error: Could not connect to the AI server.");
@@ -176,6 +185,7 @@ export default function Home() {
     setHint("Checking board...");
     setHintCells([]);
     setErrorCells([]);
+    setIsSolved(false);
     
     try {
       const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -194,6 +204,10 @@ export default function Home() {
       
       if (data.status === "error" && data.highlight_cells) {
         setErrorCells(data.highlight_cells);
+      }
+
+      if (data.status === "success" && data.explanation_text && data.explanation_text.includes("Congratulations")) {
+        setIsSolved(true);
       }
       
     } catch (error) {
@@ -358,7 +372,7 @@ export default function Home() {
               return (
                 <div key={`${rIndex}-${cIndex}`} className="relative w-12 h-12 sm:w-14 sm:h-14">
                   {isTopLeftOfCage && (
-                    <span className="absolute top-0.5 left-1.5 text-[11px] font-bold text-red-700 z-20 pointer-events-none">
+                    <span className="absolute top-0.5 left-1.5 text-[11px] font-bold text-red-700 z-30 pointer-events-none">
                       {matchingCage?.sum}
                     </span>
                   )}
@@ -382,16 +396,19 @@ export default function Home() {
                     draggable={false}
                     onMouseDown={() => handleMouseDown(rIndex, cIndex)}
                     onMouseEnter={() => handleMouseEnter(rIndex, cIndex)}
-                    className={`${outfit.className} absolute inset-0 w-full h-full text-center text-2xl font-bold text-slate-800 cursor-pointer
+                    className={`${outfit.className} absolute inset-0 w-full h-full text-center text-2xl font-bold text-slate-800 cursor-pointer transition-all duration-500
                       focus:outline-none focus:ring-4 focus:ring-inset focus:z-0 ${themeColors[variant].ring}
                       ${isRightBorder ? "border-r-2 border-r-slate-400" : "border-r border-r-slate-200"}
                       ${isBottomBorder ? "border-b-2 border-b-slate-400" : "border-b border-b-slate-200"}
-                      ${isErrorCell ? "bg-red-200 text-red-900 shadow-inner z-0 transition-all duration-300" : 
-                        isHintCell ? "bg-emerald-200 shadow-inner z-0 transition-all duration-300" : 
-                        isSelectedForCage ? "bg-red-200 transition-colors z-0" : 
+                      ${isSolved ? "!bg-emerald-500 !text-white !border-emerald-600 shadow-md z-20 scale-100" : 
+                        isErrorCell ? "bg-red-200 text-red-900 shadow-inner z-0" : 
+                        isHintCell ? "bg-emerald-200 shadow-inner z-0" : 
+                        isSelectedForCage ? "bg-red-200 z-0" : 
                         matchingCage ? "bg-red-50 z-0" : 
                         isXDiagonal ? "bg-orange-50 z-0" : "bg-white z-0"}
                     `}
+                    // Calculate delay based on distance from top-left (0,0)
+                    style={{ transitionDelay: isSolved ? `${(rIndex + cIndex) * 50}ms` : '0ms' }}
                   />
                 </div>
               );
