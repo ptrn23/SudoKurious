@@ -8,8 +8,8 @@ class GeneticSudokuSolver:
         self.cages = cages
         self.pop_size = pop_size
         self.max_generations = max_generations
-        
         self.fixed_cells = self._get_fixed_cells()
+        self.hall_of_fame = [] 
 
     def _get_fixed_cells(self):
         return [[self.original_board[r][c] != 0 for c in range(9)] for r in range(9)]
@@ -108,38 +108,65 @@ class GeneticSudokuSolver:
                     board[r][c1], board[r][c2] = board[r][c2], board[r][c1]
         return board
 
-    def _local_search(self, board):
+    def _local_search(self, board, max_attempts=5):
         current_fitness = self._calculate_fitness(board)
         if current_fitness == 0:
             return board
 
-        conflicts = self._get_conflicting_cells(board)
+        conflicts = list(self._get_conflicting_cells(board))
         if not conflicts:
             return board
         
-        r, c1 = random.choice(list(conflicts))
-        if self.fixed_cells[r][c1]: 
-            return board
+        random.shuffle(conflicts)
 
-        movables_in_row = [c for c in range(9) if not self.fixed_cells[r][c] and c != c1]
-        
-        for c2 in movables_in_row:
-            board[r][c1], board[r][c2] = board[r][c2], board[r][c1]
-            new_fitness = self._calculate_fitness(board)
+        for r, c1 in conflicts[:max_attempts]:
+            if self.fixed_cells[r][c1]: 
+                continue
 
-            if new_fitness < current_fitness:
-                return board 
+            movables_in_row = [c for c in range(9) if not self.fixed_cells[r][c] and c != c1]
             
-            board[r][c1], board[r][c2] = board[r][c2], board[r][c1]
+            for c2 in movables_in_row:
+                board[r][c1], board[r][c2] = board[r][c2], board[r][c1]
+                new_fitness = self._calculate_fitness(board)
+
+                if new_fitness < current_fitness:
+                    return board 
+                
+                board[r][c1], board[r][c2] = board[r][c2], board[r][c1]
 
         return board
 
-    def solve(self):
-        print(f"Initializing Population ({self.pop_size} boards)...")
-        population = [self._create_individual() for _ in range(self.pop_size)]
+    def _update_hall_of_fame(self, graded_pop):
+        for fitness, board in graded_pop:
+            if fitness <= 4:
+                self.hall_of_fame.append(copy.deepcopy(board))
+        
+        if len(self.hall_of_fame) > 50:
+            self.hall_of_fame = self.hall_of_fame[-50:]
 
-        stagnation_counter = 0
+    def _get_consensus_hint(self):
+        if not self.hall_of_fame:
+            return None
+
+        agreement_cells = []
+
+        for r in range(9):
+            for c in range(9):
+                if self.fixed_cells[r][c]:
+                    continue
+                
+                values_at_pos = [board[r][c] for board in self.hall_of_fame]
+                if len(set(values_at_pos)) == 1:
+                    agreement_cells.append((r, c, values_at_pos[0]))
+
+        if agreement_cells:
+            return random.choice(agreement_cells)
+        return None
+
+    def solve(self):
+        population = [self._create_individual() for _ in range(self.pop_size)]
         previous_best = 999
+        stagnation_counter = 0
         
         for generation in range(self.max_generations):
             graded_pop = [(self._calculate_fitness(board), board) for board in population]
@@ -147,9 +174,10 @@ class GeneticSudokuSolver:
             
             best_fitness = graded_pop[0][0]
             best_board = graded_pop[0][1]
-
-            elite_count = int(self.pop_size * 0.2)
-            elites = [item[1] for item in graded_pop[:elite_count]]
+            self._update_hall_of_fame(graded_pop[:5])
+            if best_fitness <= 2:
+                print(f"Stalled at {best_fitness} errors. Extracting consensus hint...")
+                return best_board 
 
             if best_fitness == previous_best:
                 stagnation_counter += 1
@@ -157,36 +185,37 @@ class GeneticSudokuSolver:
                 stagnation_counter = 0
                 previous_best = best_fitness
 
-            current_mutation = 0.30 if stagnation_counter > 15 else 0.15
-            
-            if stagnation_counter > 50:
-                # print(f"Stuck at {best_fitness} errors! Triggering Mass Extinction...")
-                population = elites[:2] + [self._create_individual() for _ in range(self.pop_size - 2)]
+            if stagnation_counter > 20:
+                population = [graded_pop[0][1], graded_pop[1][1]] + [self._create_individual() for _ in range(self.pop_size - 2)]
                 stagnation_counter = 0
                 continue
-            
-            # if generation % 10 == 0:
-            #     print(f"Generation {generation} | Best Fitness: {best_fitness} | Mut Rate: {current_mutation}")
-            
-            if best_fitness == 0:
-                print(f"\nSUCCESS! Memetic evolution solved the board in {generation} generations!")
-                return best_board
-            
-            next_generation = []
-            next_generation.extend(elites[:2]) 
-            
+
+            elite_count = int(self.pop_size * 0.4)
+            elites = [item[1] for item in graded_pop[:elite_count]]
+            next_generation = elites[:2]
+
             while len(next_generation) < self.pop_size:
-                parent1, parent2 = random.sample(elites, 2)
-                child = self._crossover(parent1, parent2)
-                child = self._mutate(child, mutation_rate=current_mutation)
+                p1, p2 = random.sample(elites, 2)
+                child = self._mutate(self._crossover(p1, p2))
                 child = self._local_search(child)
-                
                 next_generation.append(child)
                 
             population = next_generation
             
-        print("\nEvolution failed to find a perfect solution within the generation limit.")
-        return None
+        return graded_pop[0][1]
+
+    def get_hint_result(self):
+        best_found = self.solve()
+        hint = self._get_consensus_hint()
+        
+        if hint:
+            r, c, val = hint
+            return r, c, val, best_found
+        
+        # if no consensus, just pick a random empty cell from best_found
+        empty_cells = [(r, c) for r in range(9) for c in range(9) if not self.fixed_cells[r][c]]
+        r, c = random.choice(empty_cells)
+        return r, c, best_found[r][c], best_found
 
     def test_initialization(self):
         print("Creating an individual...")

@@ -113,7 +113,7 @@ def get_hint(request: SudokuRequest):
                     explanation = (
                         f"This board is too complex for basic human logic! "
                         f"I booted up the Memetic Algorithm, and after simulating thousands of generations, "
-                        f"it guarantees that row {r + 1}, column {c + 1} must be {value}."
+                        f"we can try {value} in row {r + 1}, column {c + 1}."
                     )
                     return {
                         "status": "success",
