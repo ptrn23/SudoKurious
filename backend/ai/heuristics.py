@@ -189,19 +189,25 @@ def check_sudoku(board, variant="standard", cages=None):
             return createErrorMsg(not_unique, len(row), loc_in_sudoku, "Both in the same row", row)
     
     if variant == "x-sudoku":
-        leftWing = [] #\
-        rightWing = [] # /
-        for i in range(0,N):
-            # \ wing
+        # \
+        leftWing = []
+        leftWingLocs = []
+        for i in range(N):
             leftWing.append(board[i][i])
-            # / wing
-            rightWing.append(board[i][N-1-i])
+            leftWingLocs.append((i, i))
         
         if ((not_unique := getRepeatingNumber(leftWing)) != None):
-            return createErrorMsg(not_unique, len(leftWing), loc_in_sudoku, "Left Wing error", leftWing)
+            return createErrorMsg(not_unique, len(leftWing), leftWingLocs, "Left Wing error", leftWing)
         
+        # /
+        rightWing = []
+        rightWingLocs = []
+        for i in range(N):
+            rightWing.append(board[i][N-1-i])
+            rightWingLocs.append((i, N-1-i))
+            
         if ((not_unique := getRepeatingNumber(rightWing)) != None):
-            return createErrorMsg(not_unique, len(rightWing), loc_in_sudoku, "Right Wing error", rightWing)
+            return createErrorMsg(not_unique, len(rightWing), rightWingLocs, "Right Wing error", rightWing)
     
     has_empty_cells = any(0 in row for row in board)
     h_cos = heurestic_cost_fxn(board, variant)
