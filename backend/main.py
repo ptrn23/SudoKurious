@@ -69,14 +69,27 @@ def get_hint(request: SudokuRequest):
     
     h_result = get_best_h_move(request.board, request.variant, request.cages)
     if h_result:
-        row, col, value, explanation = h_result
+        if hasattr(h_result, 'return_summary'):
+            row, col, value, explanation = h_result.return_summary()
+        elif isinstance(h_result, tuple):
+            row, col, value, explanation = h_result
+        else:
+            return {
+                "status": "error",
+                "technique_used": "Error",
+                "highlight_cells": [],
+                "suggested_value": None,
+                "explanation_text": "Backend error: Unrecognized move format.",
+                "difficulty_score": formatted_difficulty
+            }
+
         print(f"Hint found at ({row}, {col}) -> {value}")
         return {
             "status": "success",
-            "technique_used": "Naked Single",
-            "highlight_cells": [[row, col]],
-            "suggested_value": value,
-            "explanation_text": explanation,
+            "technique_used": "Logic Heuristic", 
+            "highlight_cells": [[int(row), int(col)]],
+            "suggested_value": int(value),
+            "explanation_text": str(explanation),
             "difficulty_score": formatted_difficulty 
         }
         
