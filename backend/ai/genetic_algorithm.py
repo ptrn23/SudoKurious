@@ -108,6 +108,32 @@ class GeneticSudokuSolver:
                     board[r][c1], board[r][c2] = board[r][c2], board[r][c1]
         return board
 
+    def _local_search(self, board):
+        current_fitness = self._calculate_fitness(board)
+        if current_fitness == 0:
+            return board
+
+        conflicts = self._get_conflicting_cells(board)
+        if not conflicts:
+            return board
+        
+        r, c1 = random.choice(list(conflicts))
+        if self.fixed_cells[r][c1]: 
+            return board
+
+        movables_in_row = [c for c in range(9) if not self.fixed_cells[r][c] and c != c1]
+        
+        for c2 in movables_in_row:
+            board[r][c1], board[r][c2] = board[r][c2], board[r][c1]
+            new_fitness = self._calculate_fitness(board)
+
+            if new_fitness < current_fitness:
+                return board 
+            
+            board[r][c1], board[r][c2] = board[r][c2], board[r][c1]
+
+        return board
+
     def solve(self):
         print(f"Initializing Population ({self.pop_size} boards)...")
         population = [self._create_individual() for _ in range(self.pop_size)]
