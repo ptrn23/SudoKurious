@@ -60,13 +60,33 @@ class GeneticSudokuSolver:
                 child.append(copy.deepcopy(parent2[r]))
         return child
 
-    def _get_broken_columns(self, board):
-        broken_cols = []
+    def _get_conflicting_cells(self, board):
+        conflicts = set()
+        
         for c in range(9):
-            col_values = [board[r][c] for r in range(9)]
-            if len(set(col_values)) < 9:
-                broken_cols.append(c)
-        return broken_cols
+            seen = {}
+            for r in range(9):
+                val = board[r][c]
+                if val in seen:
+                    conflicts.add((r, c))
+                    conflicts.add((seen[val], c))
+                else:
+                    seen[val] = r
+                    
+        for box_r in range(3):
+            for box_c in range(3):
+                seen = {}
+                for i in range(3):
+                    for j in range(3):
+                        r, c = box_r * 3 + i, box_c * 3 + j
+                        val = board[r][c]
+                        if val in seen:
+                            conflicts.add((r, c))
+                            conflicts.add(seen[val])
+                        else:
+                            seen[val] = (r, c)
+                            
+        return conflicts
 
     def _mutate(self, board, mutation_rate=0.15):
         broken_cols = self._get_broken_columns(board)
