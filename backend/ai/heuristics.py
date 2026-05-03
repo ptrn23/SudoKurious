@@ -124,7 +124,7 @@ def find_hidden_single(board, variant="standard", cages=None):
 
     return None
 
-lst_of_techs = [find_naked_single, find_hidden_single, get_candidates]
+lst_of_techs = [find_naked_single, find_hidden_single]
 
 # ==================================================================================
 # 
