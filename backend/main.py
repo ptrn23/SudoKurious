@@ -66,6 +66,19 @@ def get_hint(request: SudokuRequest):
     
     formatted_difficulty = predict_difficulty(request.board)
     print(f"Random Forest Predicted Difficulty: {formatted_difficulty}")
+
+    is_full = all(all(cell != 0 for cell in row) for row in request.board)
+    if is_full:
+        error_check = check_sudoku(request.board, request.variant, request.cages)
+        if error_check == "Complete Sudoku":
+            return {
+                "status": "success",
+                "technique_used": "Full Board",
+                "highlight_cells": [],
+                "suggested_value": None,
+                "explanation_text": "The Sudoku is already solved! Congratulations!",
+                "difficulty_score": formatted_difficulty 
+            }
     
     h_result = get_best_h_move(request.board, request.variant, request.cages)
     if h_result:
