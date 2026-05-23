@@ -6,7 +6,13 @@ import { Grid3X3, X as XIcon, Calculator, Plus, Trash2, Eraser, Flame } from "lu
 const outfit = Outfit({ subsets: ["latin"] });
 const newsreader = Newsreader({ subsets: ["latin"], style: ['normal', 'italic'] });
 
-const SAMPLE_BOARDS = [
+type SampleBoard = {
+  name: string;
+  gridString: string;
+  cages?: { sum: number; cells: [number, number][] }[];
+};
+
+const SAMPLE_BOARDS: SampleBoard[] = [
   {
     name: "Easy",
     gridString: ".467....5.3.......5....93..4....1...39...258........291...2.76....5.8...86......."
@@ -30,6 +36,44 @@ const SAMPLE_BOARDS = [
   {
     name: "X-Sudoku",
     gridString: "9..5....77.......1...1..2...1.3........7..........8.6...6..9...2..8.....5....3..."
+  },
+  {
+    name: "Killer Sudoku",
+    gridString: ".................................................................................",
+    cages: [
+      { sum: 23, cells: [[3, 4], [4, 4], [5, 4]] },
+      { sum: 13, cells: [[3, 2], [3, 3], [2, 3]] },
+      { sum: 9,  cells: [[8, 7], [8, 8], [7, 8]] },
+      { sum: 18, cells: [[0, 5], [1, 5], [1, 4]] },
+      { sum: 16, cells: [[6, 6], [5, 6], [5, 7]] },
+      { sum: 13, cells: [[3, 7], [2, 7], [1, 7]] },
+      { sum: 11, cells: [[4, 7], [4, 6]] },
+      { sum: 11, cells: [[4, 5], [5, 5]] },
+      { sum: 13, cells: [[7, 4], [8, 4], [8, 5]] },
+      { sum: 15, cells: [[2, 2], [1, 2], [1, 3]] },
+      { sum: 5,  cells: [[3, 5], [3, 6]] },
+      { sum: 18, cells: [[1, 0], [2, 0], [3, 0]] },
+      { sum: 12, cells: [[0, 4], [0, 3], [0, 2]] },
+      { sum: 10, cells: [[2, 4], [2, 5], [2, 6]] },
+      { sum: 13, cells: [[1, 6], [0, 6]] },
+      { sum: 10, cells: [[2, 8], [3, 8]] },
+      { sum: 10, cells: [[7, 5], [6, 5], [6, 4]] },
+      { sum: 8,  cells: [[4, 2], [5, 2]] },
+      { sum: 9,  cells: [[5, 1], [6, 1]] },
+      { sum: 21, cells: [[8, 2], [8, 3], [7, 3]] },
+      { sum: 21, cells: [[1, 1], [2, 1], [3, 1]] },
+      { sum: 15, cells: [[6, 3], [6, 2]] },
+      { sum: 10, cells: [[4, 1], [4, 0]] },
+      { sum: 10, cells: [[7, 2], [7, 1]] },
+      { sum: 19, cells: [[7, 7], [6, 7], [6, 8]] },
+      { sum: 6,  cells: [[4, 8], [5, 8]] },
+      { sum: 7,  cells: [[5, 3], [4, 3]] },
+      { sum: 3,  cells: [[0, 1], [0, 0]] },
+      { sum: 18, cells: [[5, 0], [6, 0], [7, 0]] },
+      { sum: 21, cells: [[0, 7], [0, 8], [1, 8]] },
+      { sum: 12, cells: [[8, 6], [7, 6]] },
+      { sum: 5,  cells: [[8, 0], [8, 1]] }
+    ]
   }
 ];
 
@@ -118,13 +162,13 @@ export default function Home() {
     setIsDrawing(false);
   };
 
-  const loadSampleBoard = (gridString: string) => {
+  const loadSampleBoard = (sample: typeof SAMPLE_BOARDS[0]) => {
     const newBoard = Array(9).fill(0).map(() => Array(9).fill(0));
     
     for (let i = 0; i < 81; i++) {
       const row = Math.floor(i / 9);
       const col = i % 9;
-      const char = gridString[i];
+      const char = sample.gridString[i];
       
       if (char >= '1' && char <= '9') {
         newBoard[row][col] = parseInt(char, 10);
@@ -132,6 +176,18 @@ export default function Home() {
     }
     
     setBoard(newBoard);
+    
+    if (sample.name === "Killer Sudoku") {
+        setVariant("killer");
+        setCages(sample.cages || []);
+    } else if (sample.name === "X-Sudoku") {
+        setVariant("x-sudoku");
+        setCages([]);
+    } else {
+        setVariant("standard");
+        setCages([]);
+    }
+
     setHint("Click 'Get Hint' to ask the AI!");
     setHintCells([]);
     setErrorCells([]);
@@ -438,7 +494,7 @@ export default function Home() {
           {SAMPLE_BOARDS.map((sample, index) => (
             <button
               key={index}
-              onClick={() => loadSampleBoard(sample.gridString)}
+              onClick={() => loadSampleBoard(sample)}
               className={`${outfit.className} px-6 py-2.5 font-bold rounded-full bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-sm transition-colors border border-indigo-100 shadow-sm`}
             >
               {sample.name}
