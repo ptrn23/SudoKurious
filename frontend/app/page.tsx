@@ -4,6 +4,7 @@ import { Outfit, Newsreader } from "next/font/google";
 import { Grid3X3, X as XIcon, Calculator, Plus, Trash2, Eraser, Flame, Lightbulb, Brain, AlertTriangle, CheckCircle, Loader2, X, ChartNoAxesCombined, History } from "lucide-react";
 
 import FeedbackModal from "../components/FeedbackModal";
+import AnimatedBackground from "../components/AnimatedBackground";
 
 const outfit = Outfit({ subsets: ["latin"] });
 const newsreader = Newsreader({ subsets: ["latin"], style: ['normal', 'italic'] });
@@ -374,16 +375,8 @@ export default function Home() {
   }, [isSolved]);
 
   return (
-    <main className="flex min-h-screen flex-col items-center py-4 sm:py-8 bg-slate-50">
-      <div 
-        className="fixed inset-0 pointer-events-none z-0 opacity-40"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='4' y='4' width='32' height='32' fill='none' stroke='%23cbd5e1' stroke-width='1.5' rx='4' ry='4' /%3E%3C/svg%3E")`,
-          backgroundSize: '40px 40px'
-        }}
-      />
-      
-      <div className="fixed inset-0 pointer-events-none z-0 bg-gradient-to-b from-transparent via-slate-50/30 to-slate-50/90" />
+    <main className="flex min-h-screen flex-col items-center py-8">
+      <AnimatedBackground variant={variant} />
       
       <div className="relative z-10 w-full flex flex-col items-center">
         <header className="w-full max-w-5xl mx-auto px-6 py-4 flex items-center justify-between mb-6">

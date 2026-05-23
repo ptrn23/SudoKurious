@@ -24,3 +24,13 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@keyframes slow-fade {
+  0% { opacity: 0; }
+  50% { opacity: 0.15; }
+  100% { opacity: 0; }
+}
+
+.grid-square-smooth {
+  animation: slow-fade 6s ease-in-out infinite;
+}
