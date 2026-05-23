@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { Outfit, Newsreader } from "next/font/google";
-import { Grid3X3, X as XIcon, Calculator, Plus, Trash2, Eraser, Flame } from "lucide-react";
+import { Grid3X3, X as XIcon, Calculator, Plus, Trash2, Eraser, Flame, Lightbulb, Brain, AlertTriangle, CheckCircle, Loader2, X } from "lucide-react";
 
 import FeedbackModal from "../components/FeedbackModal";
 
@@ -106,7 +106,10 @@ export default function Home() {
     Array(9).fill(null).map(() => Array(9).fill(0))
   );
   const [variant, setVariant] = useState<"standard" | "x-sudoku" | "killer">("standard");
-  const [hint, setHint] = useState("Click 'Get Hint' to test the AI!");
+  const [hintInfo, setHintInfo] = useState<{
+    text: string;
+    type: 'default' | 'loading' | 'heuristic' | 'genetic' | 'error' | 'success';
+  }>({ text: "", type: 'default' });
   const [hintCells, setHintCells] = useState<[number, number][]>([]);
   const [errorCells, setErrorCells] = useState<[number, number][]>([]);
   const [difficulty, setDifficulty] = useState<number | null>(null);
@@ -135,7 +138,7 @@ export default function Home() {
     setErrorCells([]);
     setIsSolved(false);
     setHasRated(false);
-    setHint("Click 'Get Hint' to test the AI!");
+    setHintInfo({ text: "Click 'Get Hint' to test the AI!", type: 'default' });
   };
 
   const isCellCaged = (r: number, c: number) => {
@@ -215,7 +218,7 @@ export default function Home() {
         setCages([]);
     }
 
-    setHint("Click 'Get Hint' to ask the AI!");
+    setHintInfo({ text: "Click 'Get Hint' to ask the AI!", type: 'default' });
     setHintCells([]);
     setErrorCells([]);
     setIsSolved(false);
@@ -225,7 +228,7 @@ export default function Home() {
 
   const clearBoard = () => {
     setBoard(Array(9).fill(0).map(() => Array(9).fill(0)));
-    setHint("Click 'Get Hint' to ask the AI!");
+    setHintInfo({ text: "Click 'Get Hint' to ask the AI!", type: 'default' });
     setHintCells([]);
     setErrorCells([]);
     setIsSolved(false);
@@ -234,7 +237,7 @@ export default function Home() {
   };
 
   const fetchHint = async () => {
-    setHint("Thinking...");
+    setHintInfo({ text: "Analyzing the board...", type: 'loading' });
     setHintCells([]);
     setErrorCells([]);
     setIsSolved(false);
@@ -244,22 +247,19 @@ export default function Home() {
       const response = await fetch(`${baseUrl}/api/get-hint`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          variant: variant, 
-          board: board,
-          cages: variant === "killer" ? cages : [] 
-        }),
+        body: JSON.stringify({ variant, board, cages: variant === "killer" ? cages : [] }),
       });
       const data = await response.json();
-      setHint(data.explanation_text);
       
-      if (data.highlight_cells) {
-        setHintCells(data.highlight_cells);
-      }
-
-      if (data.difficulty_score !== undefined) {
-        setDifficulty(data.difficulty_score);
-      }
+      // Determine the hint type based on the backend's technique
+      let hintType: 'heuristic' | 'genetic' | 'success' = 'success';
+      if (data.technique_used === "Logic Heuristic") hintType = 'heuristic';
+      if (data.technique_used === "Genetic Algorithm Fallback") hintType = 'genetic';
+      
+      setHintInfo({ text: data.explanation_text, type: hintType });
+      
+      if (data.highlight_cells) setHintCells(data.highlight_cells);
+      if (data.difficulty_score !== undefined) setDifficulty(data.difficulty_score);
 
       if (data.explanation_text && data.explanation_text.includes("Congratulations")) {
         savePlayHistory(variant, data.difficulty_score, true);
@@ -267,12 +267,12 @@ export default function Home() {
       }
       
     } catch (error) {
-      setHint("Error: Could not connect to the AI server.");
+      setHintInfo({ text: "Error: Could not connect to the AI server.", type: 'error' });
     }
   };
 
   const checkSudoku = async () => {
-    setHint("Checking board...");
+    setHintInfo({ text: "Scanning for rule violations...", type: 'loading' });
     setHintCells([]);
     setErrorCells([]);
     setIsSolved(false);
@@ -282,17 +282,14 @@ export default function Home() {
       const response = await fetch(`${baseUrl}/api/check-sudoku`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          variant: variant, 
-          board: board,
-          cages: variant === "killer" ? cages : [] 
-        }),
+        body: JSON.stringify({ variant, board, cages: variant === "killer" ? cages : [] }),
       });
       const data = await response.json();
       
-      setHint(data.explanation_text);
+      const isError = data.status === "error";
+      setHintInfo({ text: data.explanation_text, type: isError ? 'error' : 'success' });
       
-      if (data.status === "error" && data.highlight_cells) {
+      if (isError && data.highlight_cells) {
         setErrorCells(data.highlight_cells);
       }
 
@@ -302,7 +299,7 @@ export default function Home() {
       }
       
     } catch (error) {
-      setHint("Error: Could not connect to the API.");
+      setHintInfo({ text: "Error: Could not connect to the API.", type: 'error' });
     }
   };
 
@@ -651,9 +648,53 @@ export default function Home() {
         </button>
       </div>
 
-      <div className="mt-8 p-6 bg-white rounded-2xl w-full max-w-md shadow-md border border-slate-100 text-center">
-        <p className={`${outfit.className} text-slate-700 font-medium leading-relaxed`}>{hint}</p>
-      </div>
+      {hintInfo.type !== 'default' && (
+        <div className={`mt-6 p-4 rounded-2xl w-full max-w-md shadow-md border animate-in slide-in-from-top-4 fade-in duration-300 relative flex items-start text-left transition-colors
+          ${hintInfo.type === 'heuristic' ? 'bg-blue-50 border-blue-200' : ''}
+          ${hintInfo.type === 'genetic' ? 'bg-purple-50 border-purple-200 shadow-purple-900/10' : ''}
+          ${hintInfo.type === 'error' ? 'bg-red-50 border-red-200' : ''}
+          ${hintInfo.type === 'success' ? 'bg-emerald-50 border-emerald-200' : ''}
+          ${hintInfo.type === 'loading' ? 'bg-slate-50 border-slate-200' : ''}
+        `}>
+          
+          <div className="flex-shrink-0 mr-3 mt-0.5">
+             {hintInfo.type === 'heuristic' && <Lightbulb className="w-5 h-5 text-blue-600" />}
+             {hintInfo.type === 'genetic' && <Brain className="w-5 h-5 text-purple-600 animate-pulse" />}
+             {hintInfo.type === 'error' && <AlertTriangle className="w-5 h-5 text-red-600" />}
+             {hintInfo.type === 'success' && <CheckCircle className="w-5 h-5 text-emerald-600" />}
+             {hintInfo.type === 'loading' && <Loader2 className="w-5 h-5 text-slate-400 animate-spin" />}
+          </div>
+          
+          <div className="flex-1 pr-6">
+            <h4 className={`${outfit.className} text-xs font-bold uppercase tracking-wider mb-1
+              ${hintInfo.type === 'heuristic' ? 'text-blue-800' : ''}
+              ${hintInfo.type === 'genetic' ? 'text-purple-800' : ''}
+              ${hintInfo.type === 'error' ? 'text-red-800' : ''}
+              ${hintInfo.type === 'success' ? 'text-emerald-800' : ''}
+              ${hintInfo.type === 'loading' ? 'text-slate-500' : ''}
+            `}>
+               {hintInfo.type === 'heuristic' ? 'Logic Deduction' : ''}
+               {hintInfo.type === 'genetic' ? 'Deep AI Search' : ''}
+               {hintInfo.type === 'error' ? 'Rule Violation' : ''}
+               {hintInfo.type === 'success' ? 'Puzzle Solved' : ''}
+               {hintInfo.type === 'loading' ? 'Processing...' : ''}
+            </h4>
+            <p className={`${outfit.className} text-slate-700 text-sm leading-relaxed`}>
+              {hintInfo.text}
+            </p>
+          </div>
+
+          {hintInfo.type !== 'loading' && (
+            <button 
+               onClick={() => setHintInfo({text: '', type: 'default'})}
+               className="absolute top-3 right-3 text-slate-400 hover:text-slate-700 bg-white/50 hover:bg-white rounded-full p-1 transition-all"
+               title="Dismiss"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+      )}
 
       <div className="mt-6 p-5 bg-indigo-50/50 rounded-2xl w-full max-w-md shadow-sm border border-indigo-100 text-center relative group">
         <div className="flex items-center justify-center mb-2">
