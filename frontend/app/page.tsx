@@ -9,15 +9,15 @@ const newsreader = Newsreader({ subsets: ["latin"], style: ['normal', 'italic'] 
 const SAMPLE_BOARDS = [
   {
     name: "Easy",
-    gridString: ".6.12..9.2...37........5....4..5.2.78.5........1....83.1.....7...8...9..95..8..1."
+    gridString: ".467....5.3.......5....93..4....1...39...258........291...2.76....5.8...86......."
   },
   {
     name: "Medium",
-    gridString: ".19.8.56.....543.13.........87.2.......5.6.781........6748....2....75....3.....4."
+    gridString: "..78.956...5......96.7....2.5.....174..3.....1.3.5...8.....6..1...9.8.7.....7.6.9"
   },
   {
     name: "Hard",
-    gridString: "3......6...4..2..9.5.4.....6351.......9.2.8..4.......1..2.49..........3.........7"
+    gridString: "....634..5..217.3..1.4.9...1..9.......2...7..9....4..3756..1..4.......7..21...5.."
   },
   {
     name: "Almost Complete",
@@ -217,9 +217,9 @@ export default function Home() {
 
   const getDifficultyTheme = (score: number) => {
     if (score < 1.0) return { name: "Easy", color: "text-emerald-500", fill: "fill-emerald-500", bg: "bg-emerald-50", border: "border-emerald-200" };
-    if (score < 2.0) return { name: "Medium", color: "text-blue-500", fill: "fill-blue-500", bg: "bg-blue-50", border: "border-blue-200" };
-    if (score < 3.0) return { name: "Hard", color: "text-orange-500", fill: "fill-orange-500", bg: "bg-orange-50", border: "border-orange-200" };
-    if (score < 4.0) return { name: "Really Hard", color: "text-red-500", fill: "fill-red-500", bg: "bg-red-50", border: "border-red-200" };
+    if (score < 2.0) return { name: "Easy", color: "text-blue-500", fill: "fill-blue-500", bg: "bg-blue-50", border: "border-blue-200" };
+    if (score < 3.0) return { name: "Medium", color: "text-orange-500", fill: "fill-orange-500", bg: "bg-orange-50", border: "border-orange-200" };
+    if (score < 4.0) return { name: "Hard", color: "text-red-500", fill: "fill-red-500", bg: "bg-red-50", border: "border-red-200" };
     return { name: "Evil", color: "text-purple-600", fill: "fill-purple-600", bg: "bg-purple-50", border: "border-purple-200" };
   };
 
