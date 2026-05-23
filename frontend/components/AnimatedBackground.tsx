@@ -41,6 +41,8 @@ export default function AnimatedBackground({ variant }: { variant: "standard" | 
                     }}
                 />
             ))}
+
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-slate-50/20 to-slate-50/95 pointer-events-none" />
         </div>
     );
 }
