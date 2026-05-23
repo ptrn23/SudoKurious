@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { Outfit, Newsreader } from "next/font/google";
-import { Grid3X3, X as XIcon, Calculator, Plus, Trash2, Eraser } from "lucide-react";
+import { Grid3X3, X as XIcon, Calculator, Plus, Trash2, Eraser, Flame } from "lucide-react";
 
 const outfit = Outfit({ subsets: ["latin"] });
 const newsreader = Newsreader({ subsets: ["latin"], style: ['normal', 'italic'] });
@@ -215,11 +215,12 @@ export default function Home() {
     }
   };
 
-  const getDifficultyName = (score: number) => {
-      if (score <= 1.5) return "Easy";
-      if (score <= 2.5) return "Medium";
-      if (score <= 3.5) return "Hard";
-      return "???";
+  const getDifficultyTheme = (score: number) => {
+    if (score < 1.0) return { name: "Easy", color: "text-emerald-500", fill: "fill-emerald-500", bg: "bg-emerald-50", border: "border-emerald-200" };
+    if (score < 2.0) return { name: "Medium", color: "text-blue-500", fill: "fill-blue-500", bg: "bg-blue-50", border: "border-blue-200" };
+    if (score < 3.0) return { name: "Hard", color: "text-orange-500", fill: "fill-orange-500", bg: "bg-orange-50", border: "border-orange-200" };
+    if (score < 4.0) return { name: "Really Hard", color: "text-red-500", fill: "fill-red-500", bg: "bg-red-50", border: "border-red-200" };
+    return { name: "Evil", color: "text-purple-600", fill: "fill-purple-600", bg: "bg-purple-50", border: "border-purple-200" };
   };
 
   return (
@@ -470,14 +471,38 @@ export default function Home() {
       </div>
 
       {difficulty !== null && (
-        <div className="mt-4 p-4 bg-white rounded-2xl w-full max-w-md shadow-md border border-slate-100 text-center transition-all duration-500 animate-fade-in-up">
-          <p className={`${outfit.className} text-xs text-slate-400 uppercase tracking-widest font-bold mb-1`}>
+        <div className={`mt-4 p-4 rounded-2xl w-full max-w-md shadow-sm border text-center transition-all duration-500 animate-in fade-in slide-in-from-bottom-2 ${getDifficultyTheme(difficulty).bg} ${getDifficultyTheme(difficulty).border}`}>
+          
+          <p className={`${outfit.className} text-xs uppercase tracking-widest font-bold mb-1 opacity-70 ${getDifficultyTheme(difficulty).color}`}>
             DIFFICULTY
           </p>
-          <p className={`${outfit.className} text-slate-700 font-medium`}>
-            {getDifficultyName(difficulty)} 
-            <span className="text-xl font-bold text-indigo-600 ml-2">({difficulty.toFixed(1)})</span>
-          </p>
+          
+          <div className="flex flex-col items-center justify-center">
+            <p className={`${outfit.className} text-2xl font-bold ${getDifficultyTheme(difficulty).color}`}>
+              {getDifficultyTheme(difficulty).name} 
+              <span className="opacity-75 ml-2">({difficulty.toFixed(1)})</span>
+            </p>
+            
+            <div className="flex gap-1 mt-2">
+              {Array.from({ length: 5 }).map((_, index) => {
+                const activeFires = Math.min(5, Math.floor(difficulty));
+                const isActive = index < activeFires;
+                
+                return (
+                  <Flame 
+                    key={index} 
+                    className={`w-6 h-6 transition-all duration-300 ${
+                      isActive 
+                        ? `${getDifficultyTheme(difficulty).color} ${getDifficultyTheme(difficulty).fill} drop-shadow-sm scale-110` 
+                        : "text-slate-300 scale-100"
+                    }`} 
+                    strokeWidth={isActive ? 1.5 : 2}
+                  />
+                );
+              })}
+            </div>
+          </div>
+          
         </div>
       )}
     </main>
