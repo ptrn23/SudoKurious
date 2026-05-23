@@ -133,8 +133,8 @@ lst_of_techs = [find_naked_single, find_hidden_single]
 # ==================================================================================
 from collections import Counter
 class incorrectSudoku:
-    def __init__(self, locs, msg, val):
-        self.locs =locs
+    def __init__(self, locs, msg, val=None):
+        self.locs = locs
         self.val = val
         self.explanation = msg
 
@@ -143,50 +143,55 @@ class incorrectSudoku:
     
 
 def getRepeatingNumber(arr):
-    arr = Counter(arr)
-    print(arr.items())
-    for num, count in arr.items():
+    arr_counts = Counter(arr)
+    for num, count in arr_counts.items():
         if count > 1 and num != 0:
             return num
     return None 
 
-def createErrorMsg(errorVal, n, loc, msg, grp):
+def createErrorMsg(errorVal, n, loc, region_name, grp):
     error_locs = []
     for i in range(n):
         if grp[i] == errorVal:
             error_locs.append(loc[i])
-    print(errorVal, error_locs)
+            
+    # Generate the beginner-friendly text directly in the backend
+    msg = f"Rule Violation! There are multiple {errorVal}s in the same {region_name}. Check the highlighted cells."
     return incorrectSudoku(error_locs, msg, errorVal)
 
 def check_sudoku(board, variant="standard", cages=None):
+    N = 9
     
     # basic sudoku rules
     for box_i in range(0, N, 3):
         for box_j in range(0, N, 3):
-            block =[]
+            block = []
             loc_in_sudoku = []
-            for i in range(0,3):
-                row = []
-                for j in range(0,3):
-                    row.append(board[box_i+i][box_j+j])
-                    loc_in_sudoku.append((box_i+i,box_j+j))
-                block+=row
-            print(block)
+            for i in range(3):
+                for j in range(3):
+                    block.append(board[box_i+i][box_j+j])
+                    loc_in_sudoku.append((box_i+i, box_j+j))
+            
             if ((not_unique := getRepeatingNumber(block)) != None):
-                return createErrorMsg(not_unique, len(block), loc_in_sudoku, "Both in the same block", block)
+                return createErrorMsg(not_unique, len(block), loc_in_sudoku, "3x3 box", block)
                 
+    # 2. Row and Column Check (FIXED STALE LOCATIONS)
     for i in range(N):
         col = []
+        col_locs = []
         row = []
+        row_locs = []
         for j in range(N):
             col.append(board[j][i])
+            col_locs.append((j, i))
             row.append(board[i][j])
+            row_locs.append((i, j))
             
         if ((not_unique := getRepeatingNumber(col)) != None):
-            return createErrorMsg(not_unique, len(col), loc_in_sudoku, "Both in the same column", col)
+            return createErrorMsg(not_unique, len(col), col_locs, f"column {i+1}", col)
         
         if ((not_unique := getRepeatingNumber(row)) != None):
-            return createErrorMsg(not_unique, len(row), loc_in_sudoku, "Both in the same row", row)
+            return createErrorMsg(not_unique, len(row), row_locs, f"row {i+1}", row)
     
     if variant == "x-sudoku":
         # \
@@ -197,7 +202,7 @@ def check_sudoku(board, variant="standard", cages=None):
             leftWingLocs.append((i, i))
         
         if ((not_unique := getRepeatingNumber(leftWing)) != None):
-            return createErrorMsg(not_unique, len(leftWing), leftWingLocs, "Left Wing error", leftWing)
+            return createErrorMsg(not_unique, len(leftWing), leftWingLocs, "main diagonal (\\)", leftWing)
         
         # /
         rightWing = []
@@ -207,7 +212,7 @@ def check_sudoku(board, variant="standard", cages=None):
             rightWingLocs.append((i, N-1-i))
             
         if ((not_unique := getRepeatingNumber(rightWing)) != None):
-            return createErrorMsg(not_unique, len(rightWing), rightWingLocs, "Right Wing error", rightWing)
+            return createErrorMsg(not_unique, len(rightWing), rightWingLocs, "anti-diagonal (/)", rightWing)
     
     if variant == "killer" and cages:
         for cage in cages:
@@ -217,12 +222,13 @@ def check_sudoku(board, variant="standard", cages=None):
             cage_values = [board[r][c] for r, c in cage_cells]
             
             if ((not_unique := getRepeatingNumber(cage_values)) != None):
-                return createErrorMsg(not_unique, len(cage_values), cage_cells, f"Duplicate in a {target_sum}-sum cage", cage_values)
+                return createErrorMsg(not_unique, len(cage_values), cage_cells, f"sum cage (Target: {target_sum})", cage_values)
             
             if 0 not in cage_values:
                 current_sum = sum(cage_values)
                 if current_sum != target_sum:
-                    return createErrorMsg(current_sum, len(cage_values), cage_cells, f"Cage sum mismatch (Expected {target_sum}, got {current_sum})", cage_values)
+                    msg = f"Sum Mismatch! The highlighted cage adds up to {current_sum}, but it requires exactly {target_sum}."
+                    return incorrectSudoku(cage_cells, msg, current_sum)
     
     has_empty_cells = any(0 in row for row in board)
     h_cos = heurestic_cost_fxn(board, variant)

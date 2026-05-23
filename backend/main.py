@@ -161,15 +161,9 @@ def check_sudoku_endpoint(request: SudokuRequest):
         }
     
     elif error_msg:
-        offending_locs, value, raw_explanation = error_msg.return_summary()
+        offending_locs, value, friendly_explanation = error_msg.return_summary()
         
         formatted_highlights = [list(loc) for loc in offending_locs]
-        
-        friendly_explanation = (
-            f"Rule Violation! There are multiple {value}s in the same "
-            f"{raw_explanation.lower().replace('error', '')}. "
-            f"Check the highlighted cells."
-        )
         
         return {
             "status": "error",
