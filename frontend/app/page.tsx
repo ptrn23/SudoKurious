@@ -487,11 +487,11 @@ export default function Home() {
       )}
       
       <div 
-        className="bg-white p-3 shadow-xl border border-slate-100 mb-8 select-none"
+        className="bg-white p-3 pb-0 shadow-xl border border-slate-100 mb-8 select-none rounded-2xl overflow-hidden flex flex-col w-full max-w-md"
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
       >
-        <div className="grid grid-cols-9 border-4 border-slate-700 overflow-hidden">
+        <div className="grid grid-cols-9 border-4 border-slate-700 bg-white">
           {board.map((row, rIndex) =>
             row.map((cell, cIndex) => {
               const isRightBorder = (cIndex + 1) % 3 === 0 && cIndex !== 8;
@@ -530,9 +530,9 @@ export default function Home() {
               const isErrorCell = errorCells.some(([er, ec]) => er === rIndex && ec === cIndex);
 
               return (
-                <div key={`${rIndex}-${cIndex}`} className="relative w-12 h-12 sm:w-14 sm:h-14">
+                <div key={`${rIndex}-${cIndex}`} className="relative w-full aspect-square">
                   {isTopLeftOfCage && (
-                    <span className="absolute top-0.5 left-1.5 text-[11px] font-bold text-red-700 z-30 pointer-events-none">
+                    <span className="absolute top-0.5 left-1 text-[9px] sm:text-[11px] font-bold text-red-700 z-30 pointer-events-none">
                       {matchingCage?.sum}
                     </span>
                   )}
@@ -556,7 +556,7 @@ export default function Home() {
                     draggable={false}
                     onMouseDown={() => handleMouseDown(rIndex, cIndex)}
                     onMouseEnter={() => handleMouseEnter(rIndex, cIndex)}
-                    className={`${outfit.className} absolute inset-0 w-full h-full text-center text-2xl font-bold text-slate-800 cursor-pointer transition-all duration-500
+                    className={`${outfit.className} absolute inset-0 w-full h-full text-center text-xl sm:text-2xl font-bold text-slate-800 cursor-pointer transition-all duration-500
                       focus:outline-none focus:ring-4 focus:ring-inset focus:z-0 ${themeColors[variant].ring}
                       ${isRightBorder ? "border-r-2 border-r-slate-400" : "border-r border-r-slate-200"}
                       ${isBottomBorder ? "border-b-2 border-b-slate-400" : "border-b border-b-slate-200"}
@@ -567,7 +567,6 @@ export default function Home() {
                         matchingCage ? "bg-red-50 z-0" : 
                         isXDiagonal ? "bg-orange-50 z-0" : "bg-white z-0"}
                     `}
-                    // Calculate delay based on distance from top-left (0,0)
                     style={{ transitionDelay: isSolved ? `${(rIndex + cIndex) * 50}ms` : '0ms' }}
                   />
                 </div>
@@ -575,6 +574,40 @@ export default function Home() {
             })
           )}
         </div>
+
+        {difficulty !== null ? (
+          <div className={`mt-3 -mx-3 px-4 py-3 flex items-center justify-between transition-colors duration-500 ${getDifficultyTheme(difficulty).bg} border-t ${getDifficultyTheme(difficulty).border}`}>
+            <div className="flex flex-col text-left">
+              <span className={`${outfit.className} text-[10px] font-bold uppercase tracking-widest opacity-60 ${getDifficultyTheme(difficulty).color}`}>
+                Difficulty
+              </span>
+              <span className={`${outfit.className} text-lg font-bold leading-none mt-0.5 ${getDifficultyTheme(difficulty).color}`}>
+                {getDifficultyTheme(difficulty).name} <span className="opacity-75 text-sm ml-1">({difficulty.toFixed(1)})</span>
+              </span>
+            </div>
+            
+            <div className="flex gap-0.5">
+              {Array.from({ length: 5 }).map((_, index) => {
+                const activeFires = Math.min(5, Math.floor(difficulty));
+                const isActive = index < activeFires;
+                
+                return (
+                  <Flame 
+                    key={index} 
+                    className={`w-5 h-5 transition-all duration-300 ${
+                      isActive 
+                        ? `${getDifficultyTheme(difficulty).color} ${getDifficultyTheme(difficulty).fill} drop-shadow-sm` 
+                        : "text-slate-300/40"
+                    }`} 
+                    strokeWidth={isActive ? 1.5 : 2}
+                  />
+                );
+              })}
+            </div>
+          </div>
+        ) : (
+          <div className="h-3 bg-slate-50 border-t border-slate-100 -mx-3 mt-3"></div>
+        )}
       </div>
       
       <div className="mt-6 flex flex-col items-center gap-3 w-full max-w-md">
@@ -641,42 +674,6 @@ export default function Home() {
           {assessmentText || "Analyzing your play history..."} 
         </p>
       </div>
-
-      {difficulty !== null && (
-        <div className={`mt-4 p-4 rounded-2xl w-full max-w-md shadow-sm border text-center transition-all duration-500 animate-in fade-in slide-in-from-bottom-2 ${getDifficultyTheme(difficulty).bg} ${getDifficultyTheme(difficulty).border}`}>
-          
-          <p className={`${outfit.className} text-xs uppercase tracking-widest font-bold mb-1 opacity-70 ${getDifficultyTheme(difficulty).color}`}>
-            DIFFICULTY
-          </p>
-          
-          <div className="flex flex-col items-center justify-center">
-            <p className={`${outfit.className} text-2xl font-bold ${getDifficultyTheme(difficulty).color}`}>
-              {getDifficultyTheme(difficulty).name} 
-              <span className="opacity-75 ml-2">({difficulty.toFixed(1)})</span>
-            </p>
-            
-            <div className="flex gap-1 mt-2">
-              {Array.from({ length: 5 }).map((_, index) => {
-                const activeFires = Math.min(5, Math.floor(difficulty));
-                const isActive = index < activeFires;
-                
-                return (
-                  <Flame 
-                    key={index} 
-                    className={`w-6 h-6 transition-all duration-300 ${
-                      isActive 
-                        ? `${getDifficultyTheme(difficulty).color} ${getDifficultyTheme(difficulty).fill} drop-shadow-sm scale-110` 
-                        : "text-slate-300 scale-100"
-                    }`} 
-                    strokeWidth={isActive ? 1.5 : 2}
-                  />
-                );
-              })}
-            </div>
-          </div>
-          
-        </div>
-      )}
 
       <FeedbackModal 
         isOpen={isSolved && !hasRated} 
