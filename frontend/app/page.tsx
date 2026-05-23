@@ -335,6 +335,12 @@ export default function Home() {
     return `You've played ${history.length} games recently! Keep practicing to sharpen your skills.`;
   };
 
+  const clearPlayHistory = () => {
+    if (typeof window === "undefined") return;
+    localStorage.removeItem('sudokuHistory');
+    setAssessmentText(getPersonalizedAssessment());
+  };
+
   useEffect(() => {
     setAssessmentText(getPersonalizedAssessment());
   }, [isSolved]);
@@ -586,12 +592,20 @@ export default function Home() {
         <p className={`${outfit.className} text-slate-700 font-medium leading-relaxed`}>{hint}</p>
       </div>
 
-      <div className="mt-6 p-5 bg-indigo-50/50 rounded-2xl w-full max-w-md shadow-sm border border-indigo-100 text-center">
+      <div className="mt-6 p-5 bg-indigo-50/50 rounded-2xl w-full max-w-md shadow-sm border border-indigo-100 text-center relative group">
         <div className="flex items-center justify-center mb-2">
           <h3 className={`${outfit.className} text-sm font-bold text-indigo-900 uppercase tracking-wide`}>
             Assessment
           </h3>
         </div>
+
+        <button 
+          onClick={clearPlayHistory}
+          className="absolute top-3 right-3 p-1.5 text-indigo-300 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors opacity-0 group-hover:opacity-100"
+          title="Reset Play History"
+        >
+          <Trash2 className="w-4 h-4" />
+        </button>
         
         <p className={`${outfit.className} text-indigo-700 text-sm font-medium leading-relaxed min-h-[40px]`}>
           {assessmentText || "Analyzing your play history..."} 
