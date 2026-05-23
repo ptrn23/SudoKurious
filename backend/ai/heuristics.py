@@ -209,6 +209,21 @@ def check_sudoku(board, variant="standard", cages=None):
         if ((not_unique := getRepeatingNumber(rightWing)) != None):
             return createErrorMsg(not_unique, len(rightWing), rightWingLocs, "Right Wing error", rightWing)
     
+    if variant == "killer" and cages:
+        for cage in cages:
+            cage_cells = cage.cells if hasattr(cage, 'cells') else cage['cells']
+            target_sum = cage.sum if hasattr(cage, 'sum') else cage['sum']
+            
+            cage_values = [board[r][c] for r, c in cage_cells]
+            
+            if ((not_unique := getRepeatingNumber(cage_values)) != None):
+                return createErrorMsg(not_unique, len(cage_values), cage_cells, f"Duplicate in a {target_sum}-sum cage", cage_values)
+            
+            if 0 not in cage_values:
+                current_sum = sum(cage_values)
+                if current_sum != target_sum:
+                    return createErrorMsg(current_sum, len(cage_values), cage_cells, f"Cage sum mismatch (Expected {target_sum}, got {current_sum})", cage_values)
+    
     has_empty_cells = any(0 in row for row in board)
     h_cos = heurestic_cost_fxn(board, variant)
     if not has_empty_cells and h_cos == 0:
