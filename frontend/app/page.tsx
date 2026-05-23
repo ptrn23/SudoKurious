@@ -77,6 +77,27 @@ const SAMPLE_BOARDS: SampleBoard[] = [
   }
 ];
 
+export type PlayHistory = {
+  date: string;
+  variant: string;
+  difficultyScore: number;
+  solved: boolean;
+};
+
+export const savePlayHistory = (variant: string, difficultyScore: number, solved: boolean) => {
+  if (typeof window === "undefined") return;
+  const history: PlayHistory[] = JSON.parse(localStorage.getItem('sudokuHistory') || '[]');
+  
+  const newEntry = {
+    date: new Date().toISOString(),
+    variant,
+    difficultyScore,
+    solved
+  };
+  
+  localStorage.setItem('sudokuHistory', JSON.stringify([newEntry, ...history].slice(0, 20)));
+};
+
 export default function Home() {
   const [board, setBoard] = useState(
     Array(9).fill(null).map(() => Array(9).fill(0))
