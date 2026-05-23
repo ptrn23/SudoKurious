@@ -86,18 +86,14 @@ export type PlayHistory = {
   difficultyScore: number;
   solved: boolean;
   rating?: number;
+  timeTaken?: number;
 };
 
-export const savePlayHistory = (variant: string, difficultyScore: number, solved: boolean) => {
+export const savePlayHistory = (variant: string, difficultyScore: number, solved: boolean, timeTaken: number) => {
   if (typeof window === "undefined") return;
   const history: PlayHistory[] = JSON.parse(localStorage.getItem('sudokuHistory') || '[]');
   
-  const newEntry = {
-    date: new Date().toISOString(),
-    variant,
-    difficultyScore,
-    solved
-  };
+  const newEntry = { date: new Date().toISOString(), variant, difficultyScore, solved, timeTaken };
   
   localStorage.setItem('sudokuHistory', JSON.stringify([newEntry, ...history].slice(0, 20)));
 };
@@ -125,6 +121,23 @@ export default function Home() {
   const [isDrawing, setIsDrawing] = useState(false);
   const [cageSumInput, setCageSumInput] = useState("");
   const [isDeletingCage, setIsDeletingCage] = useState(false);
+  const [timeElapsed, setTimeElapsed] = useState(0);
+  const [isTimerRunning, setIsTimerRunning] = useState(false);
+  const [infoModal, setInfoModal] = useState<"standard" | "x-sudoku" | "killer" | null>(null);
+
+  const formatTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${s.toString().padStart(2, '0')}`;
+  };
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isTimerRunning && !isSolved) {
+      interval = setInterval(() => setTimeElapsed((prev) => prev + 1), 1000);
+    }
+    return () => clearInterval(interval);
+  }, [isTimerRunning, isSolved]);
 
   const themeColors = {
     "standard": { button: "bg-blue-600 hover:bg-blue-700", text: "text-blue-600", ring: "focus:ring-blue-200" },
@@ -140,6 +153,7 @@ export default function Home() {
     setErrorCells([]);
     setIsSolved(false);
     setHasRated(false);
+    setIsTimerRunning(true);
     setHintInfo({ text: "Click 'Get Hint' to test the AI!", type: 'default' });
   };
 
@@ -225,6 +239,8 @@ export default function Home() {
     setErrorCells([]);
     setIsSolved(false);
     setHasRated(false);
+    setIsTimerRunning(true);
+    setTimeElapsed(0);
     setDifficulty(null);
   };
 
@@ -264,7 +280,7 @@ export default function Home() {
       if (data.difficulty_score !== undefined) setDifficulty(data.difficulty_score);
 
       if (data.explanation_text && data.explanation_text.includes("Congratulations")) {
-        savePlayHistory(variant, data.difficulty_score, true);
+        savePlayHistory(variant, data.difficulty_score, true, timeElapsed);
         setIsSolved(true);
       }
       
@@ -296,7 +312,7 @@ export default function Home() {
       }
 
       if (data.status === "success" && data.explanation_text && data.explanation_text.includes("Congratulations")) {
-        savePlayHistory(variant, data.difficulty_score, true);
+        savePlayHistory(variant, data.difficulty_score, true, timeElapsed);
         setIsSolved(true);
       }
       

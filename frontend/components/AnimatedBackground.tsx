@@ -8,17 +8,22 @@ const variantColors = {
 };
 
 export default function AnimatedBackground({ variant }: { variant: "standard" | "x-sudoku" | "killer" }) {
-    const squares = useMemo(() => {
-        const cols = Math.floor(typeof window !== 'undefined' ? window.innerWidth / 40 : 30);
-        const rows = Math.floor(typeof window !== 'undefined' ? window.innerHeight / 40 : 20);
+    const [squares, setSquares] = useState<any[]>([]);
 
-        return Array.from({ length: 25 }).map((_, i) => ({
+    useEffect(() => {
+        const cols = Math.floor(window.innerWidth / 40);
+        const rows = Math.floor(window.innerHeight / 40);
+
+        const newSquares = Array.from({ length: 25 }).map((_, i) => ({
             id: i,
             left: `${Math.floor(Math.random() * cols) * 40 + 4}px`,
             top: `${Math.floor(Math.random() * rows) * 40 + 4}px`,
-            delay: `${Math.random() * 6}s`
+            delay: `${Math.random() * 6}s`,
+            color: variantColors[variant][Math.floor(Math.random() * 3)]
         }));
-    }, []);
+
+        setSquares(newSquares);
+    }, [variant]);
 
     return (
         <div className="fixed inset-0 pointer-events-none z-[-1] bg-slate-50">
@@ -33,12 +38,8 @@ export default function AnimatedBackground({ variant }: { variant: "standard" | 
             {squares.map((sq) => (
                 <div
                     key={sq.id}
-                    className={`absolute w-8 h-8 opacity-[0.05] grid-square-smooth ${variantColors[variant][Math.floor(Math.random() * 3)]}`}
-                    style={{
-                        left: sq.left,
-                        top: sq.top,
-                        animationDelay: sq.delay
-                    }}
+                    className={`absolute w-8 h-8 rounded-md grid-square-smooth ${sq.color}`}
+                    style={{ left: sq.left, top: sq.top, animationDelay: sq.delay }}
                 />
             ))}
 
