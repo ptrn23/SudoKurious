@@ -833,6 +833,38 @@ export default function Home() {
                   )}
                 </div>
               </div>
+
+              <div className="mt-8 pt-8 border-t border-slate-100">
+                <h3 className={`${outfit.className} text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center`}>
+                  <Lightbulb className="w-3 h-3 mr-1.5" /> How to Play
+                </h3>
+                
+                <div className="space-y-4">
+                  <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100 flex items-start">
+                    <Grid3X3 className="w-5 h-5 text-blue-600 mr-3 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <h4 className={`${outfit.className} text-sm font-bold text-blue-900 mb-1`}>Standard</h4>
+                      <p className={`${outfit.className} text-xs text-blue-700/80 leading-relaxed`}>Fill the grid so every row, column, and 3x3 box contains digits 1-9.</p>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-orange-50/50 p-4 rounded-xl border border-orange-100 flex items-start">
+                    <XIcon className="w-5 h-5 text-orange-600 mr-3 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <h4 className={`${outfit.className} text-sm font-bold text-orange-900 mb-1`}>X-Sudoku</h4>
+                      <p className={`${outfit.className} text-xs text-orange-700/80 leading-relaxed`}>Same as standard, but the two main diagonals must also contain digits 1-9.</p>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-red-50/50 p-4 rounded-xl border border-red-100 flex items-start">
+                    <Calculator className="w-5 h-5 text-red-600 mr-3 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <h4 className={`${outfit.className} text-sm font-bold text-red-900 mb-1`}>Killer Sudoku</h4>
+                      <p className={`${outfit.className} text-xs text-red-700/80 leading-relaxed`}>Digits in cages must sum to the total shown in the top-left corner. No repeats in a cage.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
