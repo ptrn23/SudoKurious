@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Outfit, Newsreader } from "next/font/google";
 import { Grid3X3, X as XIcon, Calculator, Plus, Trash2, Eraser, Flame } from "lucide-react";
 
@@ -107,6 +107,7 @@ export default function Home() {
   const [hintCells, setHintCells] = useState<[number, number][]>([]);
   const [errorCells, setErrorCells] = useState<[number, number][]>([]);
   const [difficulty, setDifficulty] = useState<number | null>(null);
+  const [assessmentText, setAssessmentText] = useState<string | null>(null);
   const [isSolved, setIsSolved] = useState(false);
   
   const [cages, setCages] = useState<{ sum: number; cells: [number, number][] }[]>([]);
@@ -254,6 +255,7 @@ export default function Home() {
       }
 
       if (data.explanation_text && data.explanation_text.includes("Congratulations")) {
+        savePlayHistory(variant, data.difficulty_score, true);
         setIsSolved(true);
       }
       
@@ -288,6 +290,7 @@ export default function Home() {
       }
 
       if (data.status === "success" && data.explanation_text && data.explanation_text.includes("Congratulations")) {
+        savePlayHistory(variant, data.difficulty_score, true);
         setIsSolved(true);
       }
       
@@ -303,6 +306,38 @@ export default function Home() {
     if (score < 4.0) return { name: "Hard", color: "text-red-500", fill: "fill-red-500", bg: "bg-red-50", border: "border-red-200" };
     return { name: "Evil", color: "text-purple-600", fill: "fill-purple-600", bg: "bg-purple-50", border: "border-purple-200" };
   };
+
+  const getPersonalizedAssessment = () => {
+    if (typeof window === "undefined") return null;
+    const history: PlayHistory[] = JSON.parse(localStorage.getItem('sudokuHistory') || '[]');
+    
+    if (history.length === 0) {
+      return "Welcome! Try solving an Easy board first so I can assess your skill level.";
+    }
+
+    const recentPlays = history.slice(0, 5);
+    const wins = recentPlays.filter(h => h.solved).length;
+    const avgDifficulty = recentPlays.reduce((sum, h) => sum + h.difficultyScore, 0) / recentPlays.length;
+
+    if (wins === 0 && history.length >= 2) {
+      return "I notice you've been struggling with your recent boards. Don't forget to use the 'Get Hint' button to learn new heuristics!";
+    }
+
+    if (wins >= 3 && avgDifficulty < 2.0) {
+      return "You are crushing these Easy and Medium boards! Based on your win rate, I highly recommend challenging yourself with a Hard board next.";
+    }
+
+    const killerPlays = history.filter(h => h.variant === 'killer');
+    if (killerPlays.length > 3 && killerPlays.filter(h => h.solved).length > 2) {
+      return "Your cage-math skills are excellent. You've mastered Killer Sudoku! Have you tried X-Sudoku yet?";
+    }
+
+    return `You've played ${history.length} games recently! Keep practicing to sharpen your skills.`;
+  };
+
+  useEffect(() => {
+    setAssessmentText(getPersonalizedAssessment());
+  }, [isSolved]);
 
   return (
     <main className="flex min-h-screen flex-col items-center py-16 bg-slate-50">
@@ -549,6 +584,18 @@ export default function Home() {
 
       <div className="mt-8 p-6 bg-white rounded-2xl w-full max-w-md shadow-md border border-slate-100 text-center">
         <p className={`${outfit.className} text-slate-700 font-medium leading-relaxed`}>{hint}</p>
+      </div>
+
+      <div className="mt-6 p-5 bg-indigo-50/50 rounded-2xl w-full max-w-md shadow-sm border border-indigo-100 text-center">
+        <div className="flex items-center justify-center mb-2">
+          <h3 className={`${outfit.className} text-sm font-bold text-indigo-900 uppercase tracking-wide`}>
+            Assessment
+          </h3>
+        </div>
+        
+        <p className={`${outfit.className} text-indigo-700 text-sm font-medium leading-relaxed min-h-[40px]`}>
+          {assessmentText || "Analyzing your play history..."} 
+        </p>
       </div>
 
       {difficulty !== null && (
