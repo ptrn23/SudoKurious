@@ -215,6 +215,13 @@ export default function Home() {
     }
   };
 
+  const getDifficultyName = (score: number) => {
+      if (score <= 1.5) return "Easy";
+      if (score <= 2.5) return "Medium";
+      if (score <= 3.5) return "Hard";
+      return "???";
+  };
+
   return (
     <main className="flex min-h-screen flex-col items-center py-16 bg-slate-50">
       
@@ -468,9 +475,8 @@ export default function Home() {
             DIFFICULTY
           </p>
           <p className={`${outfit.className} text-slate-700 font-medium`}>
-            Estimated Score: 
-            <span className="text-xl font-bold text-indigo-600 ml-2">{difficulty.toFixed(1)}</span>
-            <span className="text-sm text-slate-400"> / 5.0</span>
+            {getDifficultyName(difficulty)} 
+            <span className="text-xl font-bold text-indigo-600 ml-2">({difficulty.toFixed(1)})</span>
           </p>
         </div>
       )}
