@@ -691,7 +691,7 @@ export default function Home() {
         </div>
 
         {hintInfo.type !== 'default' && (
-          <div className={`mt-6 p-4 rounded-2xl w-full max-w-md shadow-md border animate-in slide-in-from-top-4 fade-in duration-300 relative flex items-start text-left transition-colors
+          <div className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-md p-4 rounded-2xl shadow-2xl border animate-in slide-in-from-bottom-6 fade-in duration-300 flex items-start text-left transition-colors
             ${hintInfo.type === 'heuristic' ? 'bg-blue-50 border-blue-200' : ''}
             ${hintInfo.type === 'genetic' ? 'bg-purple-50 border-purple-200 shadow-purple-900/10' : ''}
             ${hintInfo.type === 'error' ? 'bg-red-50 border-red-200' : ''}
