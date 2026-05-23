@@ -82,6 +82,7 @@ export type PlayHistory = {
   variant: string;
   difficultyScore: number;
   solved: boolean;
+  rating?: number;
 };
 
 export const savePlayHistory = (variant: string, difficultyScore: number, solved: boolean) => {
@@ -109,6 +110,7 @@ export default function Home() {
   const [difficulty, setDifficulty] = useState<number | null>(null);
   const [assessmentText, setAssessmentText] = useState<string | null>(null);
   const [isSolved, setIsSolved] = useState(false);
+  const [hasRated, setHasRated] = useState(false);
   
   const [cages, setCages] = useState<{ sum: number; cells: [number, number][] }[]>([]);
   const [isAddingCage, setIsAddingCage] = useState(false);
@@ -130,6 +132,7 @@ export default function Home() {
     setHintCells([]); 
     setErrorCells([]);
     setIsSolved(false);
+    setHasRated(false);
     setHint("Click 'Get Hint' to test the AI!");
   };
 
@@ -214,6 +217,7 @@ export default function Home() {
     setHintCells([]);
     setErrorCells([]);
     setIsSolved(false);
+    setHasRated(false);
     setDifficulty(null);
   };
 
@@ -223,6 +227,7 @@ export default function Home() {
     setHintCells([]);
     setErrorCells([]);
     setIsSolved(false);
+    setHasRated(false);
     setDifficulty(null);
   };
 
@@ -316,6 +321,16 @@ export default function Home() {
     }
 
     const recentPlays = history.slice(0, 5);
+    const lastPlay = recentPlays[0];
+    
+    if (lastPlay && lastPlay.rating && lastPlay.rating <= 2) {
+      return `I noticed you didn't find my recent hints very helpful. Sudoku heuristics can be tricky! Try dropping down to an Easy board, or use the 'Check Board' button more frequently to catch errors early.`;
+    }
+
+    if (lastPlay && lastPlay.rating && lastPlay.rating >= 4) {
+      return `Awesome! I'm glad my explanations are clicking for you. Since you rated the last board highly, you are definitely ready to tackle a harder difficulty.`;
+    }
+
     const wins = recentPlays.filter(h => h.solved).length;
     const avgDifficulty = recentPlays.reduce((sum, h) => sum + h.difficultyScore, 0) / recentPlays.length;
 
@@ -339,6 +354,19 @@ export default function Home() {
     if (typeof window === "undefined") return;
     localStorage.removeItem('sudokuHistory');
     setAssessmentText(getPersonalizedAssessment());
+  };
+
+  const submitRating = (stars: number) => {
+    setHasRated(true);
+    
+    if (typeof window === "undefined") return;
+    const history: PlayHistory[] = JSON.parse(localStorage.getItem('sudokuHistory') || '[]');
+    
+    if (history.length > 0) {
+      history[0].rating = stars;
+      localStorage.setItem('sudokuHistory', JSON.stringify(history));
+      setAssessmentText(getPersonalizedAssessment());
+    }
   };
 
   useEffect(() => {
@@ -645,6 +673,26 @@ export default function Home() {
             </div>
           </div>
           
+        </div>
+      )}
+
+      {isSolved && !hasRated && (
+        <div className="mt-6 p-5 bg-emerald-50 rounded-2xl w-full max-w-md shadow-sm border border-emerald-200 text-center animate-in fade-in zoom-in-95 duration-500">
+          <p className={`${outfit.className} font-bold text-emerald-800 mb-3`}>
+            How well did the AI Tutor help you learn this board?
+          </p>
+          <div className="flex justify-center gap-2">
+            {[1, 2, 3, 4, 5].map(star => (
+              <button 
+                key={star} 
+                onClick={() => submitRating(star)}
+                className="text-3xl hover:scale-125 transition-transform hover:drop-shadow-md"
+                title={`Rate ${star} stars`}
+              >
+                ⭐
+              </button>
+            ))}
+          </div>
         </div>
       )}
     </main>
