@@ -667,20 +667,27 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="mt-6 flex gap-4 w-full max-w-md justify-center">
-          <button 
-            onClick={fetchHint}
-            className={`${outfit.className} px-8 py-3 text-white font-bold rounded-full shadow-md transition-colors duration-200 ${themeColors[variant].button}`}
-          >
-            Get Hint
-          </button>
+        <div className="flex flex-col items-center mt-2 mb-4 w-full max-w-md">
+          <div className={`${outfit.className} text-slate-400 font-mono text-sm tracking-widest mb-4 flex items-center`}>
+              <span className={`w-2 h-2 rounded-full mr-2 ${isTimerRunning && !isSolved ? 'bg-red-500 animate-pulse' : 'bg-slate-300'}`}></span>
+              {formatTime(timeElapsed)}
+          </div>
 
-          <button
-            onClick={checkSudoku}
-            className={`${outfit.className} px-8 py-3 font-bold rounded-full bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 shadow-sm transition-colors duration-200`}
-          >
-            Check Board
-          </button>
+          <div className="flex gap-4 w-full justify-center">
+            <button 
+              onClick={fetchHint}
+              className={`${outfit.className} px-8 py-3 text-white font-bold rounded-full shadow-md transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 ${themeColors[variant].button}`}
+            >
+              Get Hint
+            </button>
+            
+            <button
+              onClick={checkSudoku}
+              className={`${outfit.className} px-8 py-3 font-bold rounded-full bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 shadow-sm transition-all duration-200`}
+            >
+              Check Board
+            </button>
+          </div>
         </div>
 
         {hintInfo.type !== 'default' && (
