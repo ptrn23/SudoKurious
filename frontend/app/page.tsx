@@ -375,395 +375,406 @@ export default function Home() {
 
   return (
     <main className="flex min-h-screen flex-col items-center py-4 sm:py-8 bg-slate-50">
+      <div 
+        className="fixed inset-0 pointer-events-none z-0 opacity-40"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='4' y='4' width='32' height='32' fill='none' stroke='%23cbd5e1' stroke-width='1.5' rx='4' ry='4' /%3E%3C/svg%3E")`,
+          backgroundSize: '40px 40px'
+        }}
+      />
       
-      <header className="w-full max-w-5xl mx-auto px-6 py-4 flex items-center justify-between mb-6">
-        <h1 className={`${newsreader.className} text-3xl sm:text-4xl font-bold tracking-tight ${themeColors[variant].text} transition-colors duration-300`}>
-          SudoKurious
-        </h1>
-        
-        <button 
-          onClick={() => setIsAssessmentOpen(true)}
-          className={`flex items-center px-4 py-2 rounded-full font-bold text-sm transition-all shadow-sm border
-            ${variant === 'standard' ? 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100' : ''}
-            ${variant === 'x-sudoku' ? 'bg-orange-50 text-orange-700 border-orange-200 hover:bg-orange-100' : ''}
-            ${variant === 'killer' ? 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100' : ''}
-          `}
-        >
-          <ChartNoAxesCombined className="${outfit.className} w-4 h-4 mr-2" />
-          AI Insights
-        </button>
-      </header>
+      <div className="fixed inset-0 pointer-events-none z-0 bg-gradient-to-b from-transparent via-slate-50/30 to-slate-50/90" />
+      
+      <div className="relative z-10 w-full flex flex-col items-center">
+        <header className="w-full max-w-5xl mx-auto px-6 py-4 flex items-center justify-between mb-6">
+          <h1 className={`${newsreader.className} text-3xl sm:text-4xl font-bold tracking-tight ${themeColors[variant].text} transition-colors duration-300`}>
+            SudoKurious
+          </h1>
+          
+          <button 
+            onClick={() => setIsAssessmentOpen(true)}
+            className={`${outfit.className} flex items-center px-4 py-2 rounded-full font-bold text-sm transition-all shadow-sm border
+              ${variant === 'standard' ? 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100' : ''}
+              ${variant === 'x-sudoku' ? 'bg-orange-50 text-orange-700 border-orange-200 hover:bg-orange-100' : ''}
+              ${variant === 'killer' ? 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100' : ''}
+            `}
+          >
+            <ChartNoAxesCombined className="w-4 h-4 mr-2" />
+            AI Insights
+          </button>
+        </header>
 
-      <div className="mb-8 flex items-center space-x-3">
-        <button
-          onClick={() => setVariant("standard")}
-          className={`${outfit.className} flex items-center px-5 py-2 rounded-full border-2 font-bold transition-all ${
-            variant === "standard" 
-              ? "bg-blue-50 border-blue-500 text-blue-600 shadow-sm" 
-              : "bg-white border-slate-200 text-slate-500 hover:bg-slate-50"
-          }`}
-        >
-          <Grid3X3 className="w-5 h-5 mr-2" />
-          Standard
-        </button>
+        <div className="mb-8 flex items-center space-x-3">
+          <button
+            onClick={() => setVariant("standard")}
+            className={`${outfit.className} flex items-center px-5 py-2 rounded-full border-2 font-bold transition-all ${
+              variant === "standard" 
+                ? "bg-blue-50 border-blue-500 text-blue-600 shadow-sm" 
+                : "bg-white border-slate-200 text-slate-500 hover:bg-slate-50"
+            }`}
+          >
+            <Grid3X3 className="w-5 h-5 mr-2" />
+            Standard
+          </button>
 
-        <button
-          onClick={() => setVariant("x-sudoku")}
-          className={`${outfit.className} flex items-center px-5 py-2 rounded-full border-2 font-bold transition-all ${
-            variant === "x-sudoku" 
-              ? "bg-orange-50 border-orange-500 text-orange-600 shadow-sm" 
-              : "bg-white border-slate-200 text-slate-500 hover:bg-slate-50"
-          }`}
-        >
-          <XIcon className="w-5 h-5 mr-2" />
-          X-Sudoku
-        </button>
+          <button
+            onClick={() => setVariant("x-sudoku")}
+            className={`${outfit.className} flex items-center px-5 py-2 rounded-full border-2 font-bold transition-all ${
+              variant === "x-sudoku" 
+                ? "bg-orange-50 border-orange-500 text-orange-600 shadow-sm" 
+                : "bg-white border-slate-200 text-slate-500 hover:bg-slate-50"
+            }`}
+          >
+            <XIcon className="w-5 h-5 mr-2" />
+            X-Sudoku
+          </button>
 
-        <button
-          onClick={() => setVariant("killer")}
-          className={`${outfit.className} flex items-center px-5 py-2 rounded-full border-2 font-bold transition-all ${
-            variant === "killer" 
-              ? "bg-red-50 border-red-500 text-red-600 shadow-sm" 
-              : "bg-white border-slate-200 text-slate-500 hover:bg-slate-50"
-          }`}
-        >
-          <Calculator className="w-5 h-5 mr-2" />
-          Killer Sudoku
-        </button>
-      </div>
+          <button
+            onClick={() => setVariant("killer")}
+            className={`${outfit.className} flex items-center px-5 py-2 rounded-full border-2 font-bold transition-all ${
+              variant === "killer" 
+                ? "bg-red-50 border-red-500 text-red-600 shadow-sm" 
+                : "bg-white border-slate-200 text-slate-500 hover:bg-slate-50"
+            }`}
+          >
+            <Calculator className="w-5 h-5 mr-2" />
+            Killer Sudoku
+          </button>
+        </div>
 
-      {variant === "killer" && (
-        <div className="mb-6 flex items-center space-x-3 animate-in fade-in slide-in-from-top-2 duration-300">
-          {isAddingCage ? (
-            <div className="flex items-center space-x-2 bg-red-50 p-1 pr-1.5 rounded-full border border-red-200 shadow-sm animate-in zoom-in-95 duration-200">
-              <input
-                type="number"
-                placeholder="Sum?"
-                value={cageSumInput}
-                onChange={(e) => setCageSumInput(e.target.value)}
-                className="w-20 px-3 py-1.5 text-sm font-bold text-red-700 bg-white border border-red-300 rounded-full outline-none focus:border-red-500 focus:ring-2 focus:ring-red-200"
-                autoFocus
-              />
+        {variant === "killer" && (
+          <div className="mb-6 flex items-center space-x-3 animate-in fade-in slide-in-from-top-2 duration-300">
+            {isAddingCage ? (
+              <div className="flex items-center space-x-2 bg-red-50 p-1 pr-1.5 rounded-full border border-red-200 shadow-sm animate-in zoom-in-95 duration-200">
+                <input
+                  type="number"
+                  placeholder="Sum?"
+                  value={cageSumInput}
+                  onChange={(e) => setCageSumInput(e.target.value)}
+                  className="w-20 px-3 py-1.5 text-sm font-bold text-red-700 bg-white border border-red-300 rounded-full outline-none focus:border-red-500 focus:ring-2 focus:ring-red-200"
+                  autoFocus
+                />
+                <button 
+                  onClick={handleFinishCage}
+                  className={`${outfit.className} px-4 py-1.5 bg-red-600 text-white hover:bg-red-700 rounded-full font-bold transition-colors text-sm shadow-md`}
+                >
+                  Finish
+                </button>
+              </div>
+            ) : (
               <button 
-                onClick={handleFinishCage}
-                className={`${outfit.className} px-4 py-1.5 bg-red-600 text-white hover:bg-red-700 rounded-full font-bold transition-colors text-sm shadow-md`}
+                className={`${outfit.className} flex items-center px-4 py-2 bg-red-100 text-red-700 hover:bg-red-200 rounded-lg font-bold transition-colors text-sm`}
+                onClick={() => {
+                  setIsAddingCage(true);
+                  setIsDeletingCage(false);
+                }}
               >
-                Finish
+                <Plus className="w-4 h-4 mr-2" />
+                Add Sum Cage
               </button>
-            </div>
-          ) : (
+            )}
+            
             <button 
-              className={`${outfit.className} flex items-center px-4 py-2 bg-red-100 text-red-700 hover:bg-red-200 rounded-lg font-bold transition-colors text-sm`}
+              className={`${outfit.className} flex items-center px-4 py-2 rounded-lg font-bold transition-colors text-sm ${
+                isDeletingCage 
+                  ? "bg-orange-100 text-orange-700 border border-orange-300 shadow-inner" 
+                  : "bg-slate-100 text-slate-700 hover:bg-slate-200 border border-transparent"
+              }`}
               onClick={() => {
-                setIsAddingCage(true);
-                setIsDeletingCage(false);
+                setIsDeletingCage(!isDeletingCage);
+                setIsAddingCage(false);
+                setSelectedCells([]);
+                setHintCells([]);
+                setErrorCells([]);
+                setCageSumInput("");
               }}
             >
-              <Plus className="w-4 h-4 mr-2" />
-              Add Sum Cage
+              <Eraser className="w-4 h-4 mr-2" />
+              {isDeletingCage ? "Click a cage to erase" : "Delete Sum Cage"}
             </button>
-          )}
-          
-          <button 
-            className={`${outfit.className} flex items-center px-4 py-2 rounded-lg font-bold transition-colors text-sm ${
-              isDeletingCage 
-                ? "bg-orange-100 text-orange-700 border border-orange-300 shadow-inner" 
-                : "bg-slate-100 text-slate-700 hover:bg-slate-200 border border-transparent"
-            }`}
-            onClick={() => {
-              setIsDeletingCage(!isDeletingCage);
-              setIsAddingCage(false);
-              setSelectedCells([]);
-              setHintCells([]);
-              setErrorCells([]);
-              setCageSumInput("");
-            }}
-          >
-            <Eraser className="w-4 h-4 mr-2" />
-            {isDeletingCage ? "Click a cage to erase" : "Delete Sum Cage"}
-          </button>
-          
-          <button 
-            className={`${outfit.className} flex items-center px-4 py-2 bg-white border border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-red-600 rounded-lg font-bold transition-colors text-sm`}
-            onClick={() => {
-              setCages([]);
-              setSelectedCells([]);
-              setIsAddingCage(false);
-              setCageSumInput("");
-            }}
-          >
-            <Trash2 className="w-4 h-4 mr-2" />
-            Clear Cages
-          </button>
-        </div>
-      )}
-      
-      <div 
-        className="bg-white p-3 pb-0 shadow-xl border border-slate-100 mb-8 select-none rounded-2xl overflow-hidden flex flex-col w-full max-w-md"
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
-      >
-        <div className="grid grid-cols-9 border-4 border-slate-700 bg-white">
-          {board.map((row, rIndex) =>
-            row.map((cell, cIndex) => {
-              const isRightBorder = (cIndex + 1) % 3 === 0 && cIndex !== 8;
-              const isBottomBorder = (rIndex + 1) % 3 === 0 && rIndex !== 8;
-              const isXDiagonal = variant === "x-sudoku" && (rIndex === cIndex || rIndex + cIndex === 8);
-              
-              const isKiller = variant === "killer";
-              const isSelectedForCage = isKiller && selectedCells.some(([sr, sc]) => sr === rIndex && sc === cIndex);
-              const matchingCage = isKiller 
-                ? cages.find(cage => cage.cells.some(([cr, cc]) => cr === rIndex && cc === cIndex)) 
-                : undefined;
-              
-              const activeCells = matchingCage ? matchingCage.cells : isSelectedForCage ? selectedCells : null;
-              
-              let hasTop = false, hasBottom = false, hasLeft = false, hasRight = false;
-              if (activeCells) {
-                hasTop = !activeCells.some(([cr, cc]) => cr === rIndex - 1 && cc === cIndex);
-                hasBottom = !activeCells.some(([cr, cc]) => cr === rIndex + 1 && cc === cIndex);
-                hasLeft = !activeCells.some(([cr, cc]) => cr === rIndex && cc === cIndex - 1);
-                hasRight = !activeCells.some(([cr, cc]) => cr === rIndex && cc === cIndex + 1);
-              }
-
-              let isTopLeftOfCage = false;
-              if (matchingCage) {
-                const topLeftCell = matchingCage.cells.reduce((acc, curr) => {
-                  if (curr[0] < acc[0]) return curr;
-                  if (curr[0] === acc[0] && curr[1] < acc[1]) return curr;
-                  return acc;
-                });
-                if (topLeftCell[0] === rIndex && topLeftCell[1] === cIndex) {
-                  isTopLeftOfCage = true;
+            
+            <button 
+              className={`${outfit.className} flex items-center px-4 py-2 bg-white border border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-red-600 rounded-lg font-bold transition-colors text-sm`}
+              onClick={() => {
+                setCages([]);
+                setSelectedCells([]);
+                setIsAddingCage(false);
+                setCageSumInput("");
+              }}
+            >
+              <Trash2 className="w-4 h-4 mr-2" />
+              Clear Cages
+            </button>
+          </div>
+        )}
+        
+        <div 
+          className="bg-white p-3 pb-0 shadow-xl border border-slate-100 mb-8 select-none rounded-2xl overflow-hidden flex flex-col w-full max-w-md"
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
+        >
+          <div className="grid grid-cols-9 border-4 border-slate-700 bg-white">
+            {board.map((row, rIndex) =>
+              row.map((cell, cIndex) => {
+                const isRightBorder = (cIndex + 1) % 3 === 0 && cIndex !== 8;
+                const isBottomBorder = (rIndex + 1) % 3 === 0 && rIndex !== 8;
+                const isXDiagonal = variant === "x-sudoku" && (rIndex === cIndex || rIndex + cIndex === 8);
+                
+                const isKiller = variant === "killer";
+                const isSelectedForCage = isKiller && selectedCells.some(([sr, sc]) => sr === rIndex && sc === cIndex);
+                const matchingCage = isKiller 
+                  ? cages.find(cage => cage.cells.some(([cr, cc]) => cr === rIndex && cc === cIndex)) 
+                  : undefined;
+                
+                const activeCells = matchingCage ? matchingCage.cells : isSelectedForCage ? selectedCells : null;
+                
+                let hasTop = false, hasBottom = false, hasLeft = false, hasRight = false;
+                if (activeCells) {
+                  hasTop = !activeCells.some(([cr, cc]) => cr === rIndex - 1 && cc === cIndex);
+                  hasBottom = !activeCells.some(([cr, cc]) => cr === rIndex + 1 && cc === cIndex);
+                  hasLeft = !activeCells.some(([cr, cc]) => cr === rIndex && cc === cIndex - 1);
+                  hasRight = !activeCells.some(([cr, cc]) => cr === rIndex && cc === cIndex + 1);
                 }
-              }
 
-              const isHintCell = hintCells.some(([hr, hc]) => hr === rIndex && hc === cIndex);
-              const isErrorCell = errorCells.some(([er, ec]) => er === rIndex && ec === cIndex);
+                let isTopLeftOfCage = false;
+                if (matchingCage) {
+                  const topLeftCell = matchingCage.cells.reduce((acc, curr) => {
+                    if (curr[0] < acc[0]) return curr;
+                    if (curr[0] === acc[0] && curr[1] < acc[1]) return curr;
+                    return acc;
+                  });
+                  if (topLeftCell[0] === rIndex && topLeftCell[1] === cIndex) {
+                    isTopLeftOfCage = true;
+                  }
+                }
 
-              return (
-                <div key={`${rIndex}-${cIndex}`} className="relative w-full aspect-square">
-                  {isTopLeftOfCage && (
-                    <span className="absolute top-0.5 left-1 text-[9px] sm:text-[11px] font-bold text-red-700 z-30 pointer-events-none">
-                      {matchingCage?.sum}
-                    </span>
-                  )}
-                  
-                  {activeCells && (
-                    <div 
-                      className={`absolute inset-0 pointer-events-none border-dashed border-red-500 z-10
-                        ${hasTop ? 'border-t-[3px]' : ''}
-                        ${hasBottom ? 'border-b-[3px]' : ''}
-                        ${hasLeft ? 'border-l-[3px]' : ''}
-                        ${hasRight ? 'border-r-[3px]' : ''}
-                      `} 
+                const isHintCell = hintCells.some(([hr, hc]) => hr === rIndex && hc === cIndex);
+                const isErrorCell = errorCells.some(([er, ec]) => er === rIndex && ec === cIndex);
+
+                return (
+                  <div key={`${rIndex}-${cIndex}`} className="relative w-full aspect-square">
+                    {isTopLeftOfCage && (
+                      <span className="absolute top-0.5 left-1 text-[9px] sm:text-[11px] font-bold text-red-700 z-30 pointer-events-none">
+                        {matchingCage?.sum}
+                      </span>
+                    )}
+                    
+                    {activeCells && (
+                      <div 
+                        className={`absolute inset-0 pointer-events-none border-dashed border-red-500 z-10
+                          ${hasTop ? 'border-t-[3px]' : ''}
+                          ${hasBottom ? 'border-b-[3px]' : ''}
+                          ${hasLeft ? 'border-l-[3px]' : ''}
+                          ${hasRight ? 'border-r-[3px]' : ''}
+                        `} 
+                      />
+                    )}
+                    
+                    <input
+                      type="text"
+                      value={cell === 0 ? "" : cell}
+                      onChange={(e) => handleChange(rIndex, cIndex, e.target.value)}
+                      readOnly={isAddingCage || isDeletingCage}
+                      draggable={false}
+                      onMouseDown={() => handleMouseDown(rIndex, cIndex)}
+                      onMouseEnter={() => handleMouseEnter(rIndex, cIndex)}
+                      className={`${outfit.className} absolute inset-0 w-full h-full text-center text-xl sm:text-2xl font-bold text-slate-800 cursor-pointer transition-all duration-500
+                        focus:outline-none focus:ring-4 focus:ring-inset focus:z-0 ${themeColors[variant].ring}
+                        ${isRightBorder ? "border-r-2 border-r-slate-400" : "border-r border-r-slate-200"}
+                        ${isBottomBorder ? "border-b-2 border-b-slate-400" : "border-b border-b-slate-200"}
+                        ${isSolved ? "!bg-emerald-500 !text-white !border-emerald-600 shadow-md z-20 scale-100" : 
+                          isErrorCell ? "bg-red-200 text-red-900 shadow-inner z-0" : 
+                          isHintCell ? "bg-emerald-200 shadow-inner z-0" : 
+                          isSelectedForCage ? "bg-red-200 z-0" : 
+                          matchingCage ? "bg-red-50 z-0" : 
+                          isXDiagonal ? "bg-orange-50 z-0" : "bg-white z-0"}
+                      `}
+                      style={{ transitionDelay: isSolved ? `${(rIndex + cIndex) * 50}ms` : '0ms' }}
                     />
-                  )}
+                  </div>
+                );
+              })
+            )}
+          </div>
+
+          {difficulty !== null ? (
+            <div className={`mt-3 -mx-3 px-4 py-3 flex items-center justify-between transition-colors duration-500 ${getDifficultyTheme(difficulty).bg} border-t ${getDifficultyTheme(difficulty).border}`}>
+              <div className="flex flex-col text-left">
+                <span className={`${outfit.className} text-[10px] font-bold uppercase tracking-widest opacity-60 ${getDifficultyTheme(difficulty).color}`}>
+                  Difficulty
+                </span>
+                <span className={`${outfit.className} text-lg font-bold leading-none mt-0.5 ${getDifficultyTheme(difficulty).color}`}>
+                  {getDifficultyTheme(difficulty).name} <span className="opacity-75 text-sm ml-1">({difficulty.toFixed(1)})</span>
+                </span>
+              </div>
+              
+              <div className="flex gap-0.5">
+                {Array.from({ length: 5 }).map((_, index) => {
+                  const activeFires = Math.min(5, Math.floor(difficulty));
+                  const isActive = index < activeFires;
                   
-                  <input
-                    type="text"
-                    value={cell === 0 ? "" : cell}
-                    onChange={(e) => handleChange(rIndex, cIndex, e.target.value)}
-                    readOnly={isAddingCage || isDeletingCage}
-                    draggable={false}
-                    onMouseDown={() => handleMouseDown(rIndex, cIndex)}
-                    onMouseEnter={() => handleMouseEnter(rIndex, cIndex)}
-                    className={`${outfit.className} absolute inset-0 w-full h-full text-center text-xl sm:text-2xl font-bold text-slate-800 cursor-pointer transition-all duration-500
-                      focus:outline-none focus:ring-4 focus:ring-inset focus:z-0 ${themeColors[variant].ring}
-                      ${isRightBorder ? "border-r-2 border-r-slate-400" : "border-r border-r-slate-200"}
-                      ${isBottomBorder ? "border-b-2 border-b-slate-400" : "border-b border-b-slate-200"}
-                      ${isSolved ? "!bg-emerald-500 !text-white !border-emerald-600 shadow-md z-20 scale-100" : 
-                        isErrorCell ? "bg-red-200 text-red-900 shadow-inner z-0" : 
-                        isHintCell ? "bg-emerald-200 shadow-inner z-0" : 
-                        isSelectedForCage ? "bg-red-200 z-0" : 
-                        matchingCage ? "bg-red-50 z-0" : 
-                        isXDiagonal ? "bg-orange-50 z-0" : "bg-white z-0"}
-                    `}
-                    style={{ transitionDelay: isSolved ? `${(rIndex + cIndex) * 50}ms` : '0ms' }}
-                  />
-                </div>
-              );
-            })
+                  return (
+                    <Flame 
+                      key={index} 
+                      className={`w-5 h-5 transition-all duration-300 ${
+                        isActive 
+                          ? `${getDifficultyTheme(difficulty).color} ${getDifficultyTheme(difficulty).fill} drop-shadow-sm` 
+                          : "text-slate-300/40"
+                      }`} 
+                      strokeWidth={isActive ? 1.5 : 2}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          ) : (
+            <div className="h-3 bg-slate-50 border-t border-slate-100 -mx-3 mt-3"></div>
           )}
         </div>
+        
+        <div className="w-full max-w-md mt-6 mb-2">
+          <div className="flex items-center justify-between mb-3 px-1">
+            <p className={`${outfit.className} text-xs font-bold text-slate-400 uppercase tracking-widest`}>
+              Sample Boards
+            </p>
+            <button
+              onClick={clearBoard}
+              className={`${outfit.className} text-xs font-bold text-red-500 hover:text-red-600 flex items-center transition-colors`}
+            >
+              <Eraser className="w-3 h-3 mr-1" /> Clear Grid
+            </button>
+          </div>
+          
+          <div className="flex overflow-x-auto gap-2 pb-4 -mx-4 px-4 sm:mx-0 sm:px-0 hide-scrollbar snap-x">
+            {SAMPLE_BOARDS.map((sample, index) => (
+              <button
+                key={index}
+                onClick={() => loadSampleBoard(sample)}
+                className={`${outfit.className} flex-none snap-start px-5 py-2 font-bold rounded-full bg-white text-slate-600 text-sm transition-all border border-slate-200 shadow-sm hover:border-indigo-300 hover:text-indigo-600 hover:shadow-md`}
+              >
+                {sample.name}
+              </button>
+            ))}
+          </div>
+        </div>
 
-        {difficulty !== null ? (
-          <div className={`mt-3 -mx-3 px-4 py-3 flex items-center justify-between transition-colors duration-500 ${getDifficultyTheme(difficulty).bg} border-t ${getDifficultyTheme(difficulty).border}`}>
-            <div className="flex flex-col text-left">
-              <span className={`${outfit.className} text-[10px] font-bold uppercase tracking-widest opacity-60 ${getDifficultyTheme(difficulty).color}`}>
-                Difficulty
-              </span>
-              <span className={`${outfit.className} text-lg font-bold leading-none mt-0.5 ${getDifficultyTheme(difficulty).color}`}>
-                {getDifficultyTheme(difficulty).name} <span className="opacity-75 text-sm ml-1">({difficulty.toFixed(1)})</span>
-              </span>
+        <div className="mt-6 flex gap-4 w-full max-w-md justify-center">
+          <button 
+            onClick={fetchHint}
+            className={`${outfit.className} px-8 py-3 text-white font-bold rounded-full shadow-md transition-colors duration-200 ${themeColors[variant].button}`}
+          >
+            Get Hint
+          </button>
+
+          <button
+            onClick={checkSudoku}
+            className={`${outfit.className} px-8 py-3 font-bold rounded-full bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 shadow-sm transition-colors duration-200`}
+          >
+            Check Board
+          </button>
+        </div>
+
+        {hintInfo.type !== 'default' && (
+          <div className={`mt-6 p-4 rounded-2xl w-full max-w-md shadow-md border animate-in slide-in-from-top-4 fade-in duration-300 relative flex items-start text-left transition-colors
+            ${hintInfo.type === 'heuristic' ? 'bg-blue-50 border-blue-200' : ''}
+            ${hintInfo.type === 'genetic' ? 'bg-purple-50 border-purple-200 shadow-purple-900/10' : ''}
+            ${hintInfo.type === 'error' ? 'bg-red-50 border-red-200' : ''}
+            ${hintInfo.type === 'success' ? 'bg-emerald-50 border-emerald-200' : ''}
+            ${hintInfo.type === 'loading' ? 'bg-slate-50 border-slate-200' : ''}
+          `}>
+            
+            <div className="flex-shrink-0 mr-3 mt-0.5">
+              {hintInfo.type === 'heuristic' && <Lightbulb className="w-5 h-5 text-blue-600" />}
+              {hintInfo.type === 'genetic' && <Brain className="w-5 h-5 text-purple-600 animate-pulse" />}
+              {hintInfo.type === 'error' && <AlertTriangle className="w-5 h-5 text-red-600" />}
+              {hintInfo.type === 'success' && <CheckCircle className="w-5 h-5 text-emerald-600" />}
+              {hintInfo.type === 'loading' && <Loader2 className="w-5 h-5 text-slate-400 animate-spin" />}
             </div>
             
-            <div className="flex gap-0.5">
-              {Array.from({ length: 5 }).map((_, index) => {
-                const activeFires = Math.min(5, Math.floor(difficulty));
-                const isActive = index < activeFires;
-                
-                return (
-                  <Flame 
-                    key={index} 
-                    className={`w-5 h-5 transition-all duration-300 ${
-                      isActive 
-                        ? `${getDifficultyTheme(difficulty).color} ${getDifficultyTheme(difficulty).fill} drop-shadow-sm` 
-                        : "text-slate-300/40"
-                    }`} 
-                    strokeWidth={isActive ? 1.5 : 2}
-                  />
-                );
-              })}
-            </div>
-          </div>
-        ) : (
-          <div className="h-3 bg-slate-50 border-t border-slate-100 -mx-3 mt-3"></div>
-        )}
-      </div>
-      
-      <div className="w-full max-w-md mt-6 mb-2">
-        <div className="flex items-center justify-between mb-3 px-1">
-          <p className={`${outfit.className} text-xs font-bold text-slate-400 uppercase tracking-widest`}>
-            Sample Boards
-          </p>
-          <button
-            onClick={clearBoard}
-            className={`${outfit.className} text-xs font-bold text-red-500 hover:text-red-600 flex items-center transition-colors`}
-          >
-            <Eraser className="w-3 h-3 mr-1" /> Clear Grid
-          </button>
-        </div>
-        
-        <div className="flex overflow-x-auto gap-2 pb-4 -mx-4 px-4 sm:mx-0 sm:px-0 hide-scrollbar snap-x">
-          {SAMPLE_BOARDS.map((sample, index) => (
-            <button
-              key={index}
-              onClick={() => loadSampleBoard(sample)}
-              className={`${outfit.className} flex-none snap-start px-5 py-2 font-bold rounded-full bg-white text-slate-600 text-sm transition-all border border-slate-200 shadow-sm hover:border-indigo-300 hover:text-indigo-600 hover:shadow-md`}
-            >
-              {sample.name}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="mt-6 flex gap-4 w-full max-w-md justify-center">
-        <button 
-          onClick={fetchHint}
-          className={`${outfit.className} px-8 py-3 text-white font-bold rounded-full shadow-md transition-colors duration-200 ${themeColors[variant].button}`}
-        >
-          Get Hint
-        </button>
-
-        <button
-          onClick={checkSudoku}
-          className={`${outfit.className} px-8 py-3 font-bold rounded-full bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 shadow-sm transition-colors duration-200`}
-        >
-          Check Board
-        </button>
-      </div>
-
-      {hintInfo.type !== 'default' && (
-        <div className={`mt-6 p-4 rounded-2xl w-full max-w-md shadow-md border animate-in slide-in-from-top-4 fade-in duration-300 relative flex items-start text-left transition-colors
-          ${hintInfo.type === 'heuristic' ? 'bg-blue-50 border-blue-200' : ''}
-          ${hintInfo.type === 'genetic' ? 'bg-purple-50 border-purple-200 shadow-purple-900/10' : ''}
-          ${hintInfo.type === 'error' ? 'bg-red-50 border-red-200' : ''}
-          ${hintInfo.type === 'success' ? 'bg-emerald-50 border-emerald-200' : ''}
-          ${hintInfo.type === 'loading' ? 'bg-slate-50 border-slate-200' : ''}
-        `}>
-          
-          <div className="flex-shrink-0 mr-3 mt-0.5">
-             {hintInfo.type === 'heuristic' && <Lightbulb className="w-5 h-5 text-blue-600" />}
-             {hintInfo.type === 'genetic' && <Brain className="w-5 h-5 text-purple-600 animate-pulse" />}
-             {hintInfo.type === 'error' && <AlertTriangle className="w-5 h-5 text-red-600" />}
-             {hintInfo.type === 'success' && <CheckCircle className="w-5 h-5 text-emerald-600" />}
-             {hintInfo.type === 'loading' && <Loader2 className="w-5 h-5 text-slate-400 animate-spin" />}
-          </div>
-          
-          <div className="flex-1 pr-6">
-            <h4 className={`${outfit.className} text-xs font-bold uppercase tracking-wider mb-1
-              ${hintInfo.type === 'heuristic' ? 'text-blue-800' : ''}
-              ${hintInfo.type === 'genetic' ? 'text-purple-800' : ''}
-              ${hintInfo.type === 'error' ? 'text-red-800' : ''}
-              ${hintInfo.type === 'success' ? 'text-emerald-800' : ''}
-              ${hintInfo.type === 'loading' ? 'text-slate-500' : ''}
-            `}>
-               {hintInfo.type === 'heuristic' ? 'Logic Deduction' : ''}
-               {hintInfo.type === 'genetic' ? 'Deep AI Search' : ''}
-               {hintInfo.type === 'error' ? 'Rule Violation' : ''}
-               {hintInfo.type === 'success' ? 'Puzzle Solved' : ''}
-               {hintInfo.type === 'loading' ? 'Processing...' : ''}
-            </h4>
-            <p className={`${outfit.className} text-slate-700 text-sm leading-relaxed`}>
-              {hintInfo.text}
-            </p>
-          </div>
-
-          {hintInfo.type !== 'loading' && (
-            <button 
-               onClick={() => setHintInfo({text: '', type: 'default'})}
-               className="absolute top-3 right-3 text-slate-400 hover:text-slate-700 bg-white/50 hover:bg-white rounded-full p-1 transition-all"
-               title="Dismiss"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          )}
-        </div>
-      )}
-
-      <FeedbackModal 
-        isOpen={isSolved && !hasRated} 
-        onSubmit={submitRating} 
-      />
-
-      <div 
-        className={`fixed inset-0 z-50 transition-all duration-500 ${isAssessmentOpen ? "visible" : "invisible"}`}
-      >
-        <div 
-          className={`absolute inset-0 bg-slate-900/20 backdrop-blur-sm transition-opacity duration-500 ${isAssessmentOpen ? "opacity-100" : "opacity-0"}`}
-          onClick={() => setIsAssessmentOpen(false)}
-        />
-        
-        <div 
-          className={`absolute inset-y-0 right-0 w-full sm:w-96 bg-white shadow-2xl transform transition-transform duration-500 ease-out border-l border-slate-100 flex flex-col
-            ${isAssessmentOpen ? "translate-x-0" : "translate-x-full"}
-          `}
-        >
-          <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-            <h2 className={`${outfit.className} text-lg font-bold text-slate-800 flex items-center`}>
-              <span className="text-2xl mr-2"></span> AI Tutor Profile
-            </h2>
-            <button 
-              onClick={() => setIsAssessmentOpen(false)}
-              className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-
-          <div className="p-6 flex-1 overflow-y-auto">
-            <div className="bg-indigo-50/50 rounded-2xl p-5 border border-indigo-100 relative group">
-              <h3 className={`${outfit.className} text-xs font-bold text-indigo-900 uppercase tracking-widest mb-3 opacity-70`}>
-                Current Assessment
-              </h3>
-              <p className={`${outfit.className} text-indigo-800 text-sm font-medium leading-relaxed`}>
-                {assessmentText || "Analyzing your play history..."} 
+            <div className="flex-1 pr-6">
+              <h4 className={`${outfit.className} text-xs font-bold uppercase tracking-wider mb-1
+                ${hintInfo.type === 'heuristic' ? 'text-blue-800' : ''}
+                ${hintInfo.type === 'genetic' ? 'text-purple-800' : ''}
+                ${hintInfo.type === 'error' ? 'text-red-800' : ''}
+                ${hintInfo.type === 'success' ? 'text-emerald-800' : ''}
+                ${hintInfo.type === 'loading' ? 'text-slate-500' : ''}
+              `}>
+                {hintInfo.type === 'heuristic' ? 'Logic Deduction' : ''}
+                {hintInfo.type === 'genetic' ? 'Deep AI Search' : ''}
+                {hintInfo.type === 'error' ? 'Rule Violation' : ''}
+                {hintInfo.type === 'success' ? 'Puzzle Solved' : ''}
+                {hintInfo.type === 'loading' ? 'Processing...' : ''}
+              </h4>
+              <p className={`${outfit.className} text-slate-700 text-sm leading-relaxed`}>
+                {hintInfo.text}
               </p>
+            </div>
+
+            {hintInfo.type !== 'loading' && (
               <button 
-                onClick={clearPlayHistory}
-                className="absolute top-4 right-4 p-1.5 text-indigo-300 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors opacity-0 group-hover:opacity-100"
-                title="Wipe Tutor Memory"
+                onClick={() => setHintInfo({text: '', type: 'default'})}
+                className="absolute top-3 right-3 text-slate-400 hover:text-slate-700 bg-white/50 hover:bg-white rounded-full p-1 transition-all"
+                title="Dismiss"
               >
-                <Trash2 className="w-4 h-4" />
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+        )}
+
+        <FeedbackModal 
+          isOpen={isSolved && !hasRated} 
+          onSubmit={submitRating} 
+        />
+
+        <div 
+          className={`fixed inset-0 z-50 transition-all duration-500 ${isAssessmentOpen ? "visible" : "invisible"}`}
+        >
+          <div 
+            className={`absolute inset-0 bg-slate-900/20 backdrop-blur-sm transition-opacity duration-500 ${isAssessmentOpen ? "opacity-100" : "opacity-0"}`}
+            onClick={() => setIsAssessmentOpen(false)}
+          />
+          
+          <div 
+            className={`absolute inset-y-0 right-0 w-full sm:w-96 bg-white shadow-2xl transform transition-transform duration-500 ease-out border-l border-slate-100 flex flex-col
+              ${isAssessmentOpen ? "translate-x-0" : "translate-x-full"}
+            `}
+          >
+            <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+              <h2 className={`${outfit.className} text-lg font-bold text-slate-800 flex items-center`}>
+                <span className="text-2xl mr-2"></span> AI Tutor Profile
+              </h2>
+              <button 
+                onClick={() => setIsAssessmentOpen(false)}
+                className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5" />
               </button>
             </div>
-            
-            <div className="mt-8">
-               <h3 className={`${outfit.className} text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center`}>
-                 <History className="w-3 h-3 mr-1.5" /> Session Log
-               </h3>
-               <p className="text-sm text-slate-500 italic text-center py-4">Detailed history coming soon...</p>
+
+            <div className="p-6 flex-1 overflow-y-auto">
+              <div className="bg-indigo-50/50 rounded-2xl p-5 border border-indigo-100 relative group">
+                <h3 className={`${outfit.className} text-xs font-bold text-indigo-900 uppercase tracking-widest mb-3 opacity-70`}>
+                  Current Assessment
+                </h3>
+                <p className={`${outfit.className} text-indigo-800 text-sm font-medium leading-relaxed`}>
+                  {assessmentText || "Analyzing your play history..."} 
+                </p>
+                <button 
+                  onClick={clearPlayHistory}
+                  className="absolute top-4 right-4 p-1.5 text-indigo-300 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors opacity-0 group-hover:opacity-100"
+                  title="Wipe Tutor Memory"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+              
+              <div className="mt-8">
+                <h3 className={`${outfit.className} text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center`}>
+                  <History className="w-3 h-3 mr-1.5" /> Session Log
+                </h3>
+                <p className="text-sm text-slate-500 italic text-center py-4">Detailed history coming soon...</p>
+              </div>
             </div>
           </div>
         </div>
