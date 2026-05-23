@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { Outfit, Newsreader } from "next/font/google";
-import { Grid3X3, X as XIcon, Calculator, Plus, Trash2, Eraser, Flame, Lightbulb, Brain, AlertTriangle, CheckCircle, Loader2, X } from "lucide-react";
+import { Grid3X3, X as XIcon, Calculator, Plus, Trash2, Eraser, Flame, Lightbulb, Brain, AlertTriangle, CheckCircle, Loader2, X, ChartNoAxesCombined, History } from "lucide-react";
 
 import FeedbackModal from "../components/FeedbackModal";
 
@@ -116,6 +116,7 @@ export default function Home() {
   const [assessmentText, setAssessmentText] = useState<string | null>(null);
   const [isSolved, setIsSolved] = useState(false);
   const [hasRated, setHasRated] = useState(false);
+  const [isAssessmentOpen, setIsAssessmentOpen] = useState(false);
   
   const [cages, setCages] = useState<{ sum: number; cells: [number, number][] }[]>([]);
   const [isAddingCage, setIsAddingCage] = useState(false);
@@ -373,11 +374,25 @@ export default function Home() {
   }, [isSolved]);
 
   return (
-    <main className="flex min-h-screen flex-col items-center py-16 bg-slate-50">
+    <main className="flex min-h-screen flex-col items-center py-4 sm:py-8 bg-slate-50">
       
-      <h1 className={`${newsreader.className} text-6xl font-bold tracking-tight mb-2 ${themeColors[variant].text}`}>
-        SudoKurious
-      </h1>
+      <header className="w-full max-w-5xl mx-auto px-6 py-4 flex items-center justify-between mb-6">
+        <h1 className={`${newsreader.className} text-3xl sm:text-4xl font-bold tracking-tight ${themeColors[variant].text} transition-colors duration-300`}>
+          SudoKurious
+        </h1>
+        
+        <button 
+          onClick={() => setIsAssessmentOpen(true)}
+          className={`flex items-center px-4 py-2 rounded-full font-bold text-sm transition-all shadow-sm border
+            ${variant === 'standard' ? 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100' : ''}
+            ${variant === 'x-sudoku' ? 'bg-orange-50 text-orange-700 border-orange-200 hover:bg-orange-100' : ''}
+            ${variant === 'killer' ? 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100' : ''}
+          `}
+        >
+          <ChartNoAxesCombined className="${outfit.className} w-4 h-4 mr-2" />
+          AI Insights
+        </button>
+      </header>
 
       <div className="mb-8 flex items-center space-x-3">
         <button
@@ -696,30 +711,62 @@ export default function Home() {
         </div>
       )}
 
-      <div className="mt-6 p-5 bg-indigo-50/50 rounded-2xl w-full max-w-md shadow-sm border border-indigo-100 text-center relative group">
-        <div className="flex items-center justify-center mb-2">
-          <h3 className={`${outfit.className} text-sm font-bold text-indigo-900 uppercase tracking-wide`}>
-            Assessment
-          </h3>
-        </div>
-
-        <button 
-          onClick={clearPlayHistory}
-          className="absolute top-3 right-3 p-1.5 text-indigo-300 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors opacity-0 group-hover:opacity-100"
-          title="Reset Play History"
-        >
-          <Trash2 className="w-4 h-4" />
-        </button>
-        
-        <p className={`${outfit.className} text-indigo-700 text-sm font-medium leading-relaxed min-h-[40px]`}>
-          {assessmentText || "Analyzing your play history..."} 
-        </p>
-      </div>
-
       <FeedbackModal 
         isOpen={isSolved && !hasRated} 
         onSubmit={submitRating} 
       />
+
+      <div 
+        className={`fixed inset-0 z-50 transition-all duration-500 ${isAssessmentOpen ? "visible" : "invisible"}`}
+      >
+        <div 
+          className={`absolute inset-0 bg-slate-900/20 backdrop-blur-sm transition-opacity duration-500 ${isAssessmentOpen ? "opacity-100" : "opacity-0"}`}
+          onClick={() => setIsAssessmentOpen(false)}
+        />
+        
+        <div 
+          className={`absolute inset-y-0 right-0 w-full sm:w-96 bg-white shadow-2xl transform transition-transform duration-500 ease-out border-l border-slate-100 flex flex-col
+            ${isAssessmentOpen ? "translate-x-0" : "translate-x-full"}
+          `}
+        >
+          <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+            <h2 className={`${outfit.className} text-lg font-bold text-slate-800 flex items-center`}>
+              <span className="text-2xl mr-2"></span> AI Tutor Profile
+            </h2>
+            <button 
+              onClick={() => setIsAssessmentOpen(false)}
+              className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          <div className="p-6 flex-1 overflow-y-auto">
+            <div className="bg-indigo-50/50 rounded-2xl p-5 border border-indigo-100 relative group">
+              <h3 className={`${outfit.className} text-xs font-bold text-indigo-900 uppercase tracking-widest mb-3 opacity-70`}>
+                Current Assessment
+              </h3>
+              <p className={`${outfit.className} text-indigo-800 text-sm font-medium leading-relaxed`}>
+                {assessmentText || "Analyzing your play history..."} 
+              </p>
+              <button 
+                onClick={clearPlayHistory}
+                className="absolute top-4 right-4 p-1.5 text-indigo-300 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors opacity-0 group-hover:opacity-100"
+                title="Wipe Tutor Memory"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </div>
+            
+            <div className="mt-8">
+               <h3 className={`${outfit.className} text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center`}>
+                 <History className="w-3 h-3 mr-1.5" /> Session Log
+               </h3>
+               <p className="text-sm text-slate-500 italic text-center py-4">Detailed history coming soon...</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </main>
   );
 }
