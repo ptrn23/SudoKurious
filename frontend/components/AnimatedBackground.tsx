@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 
 const variantColors = {
     standard: ["bg-blue-400", "bg-blue-500", "bg-indigo-400"],
@@ -14,16 +14,15 @@ export default function AnimatedBackground({ variant }: { variant: "standard" | 
         const cols = Math.floor(window.innerWidth / 40);
         const rows = Math.floor(window.innerHeight / 40);
 
-        const newSquares = Array.from({ length: 25 }).map((_, i) => ({
+        const initialSquares = Array.from({ length: 25 }).map((_, i) => ({
             id: i,
             left: `${Math.floor(Math.random() * cols) * 40 + 4}px`,
             top: `${Math.floor(Math.random() * rows) * 40 + 4}px`,
-            delay: `${Math.random() * 6}s`,
-            color: variantColors[variant][Math.floor(Math.random() * 3)]
+            delay: `${Math.random() * 6}s`
         }));
 
-        setSquares(newSquares);
-    }, [variant]);
+        setSquares(initialSquares);
+    }, []);
 
     return (
         <div className="fixed inset-0 pointer-events-none z-[-1] bg-slate-50">
@@ -38,8 +37,12 @@ export default function AnimatedBackground({ variant }: { variant: "standard" | 
             {squares.map((sq) => (
                 <div
                     key={sq.id}
-                    className={`absolute w-8 h-8 rounded-md grid-square-smooth ${sq.color}`}
-                    style={{ left: sq.left, top: sq.top, animationDelay: sq.delay }}
+                    className={`absolute w-8 h-8 grid-square-smooth ${variantColors[variant][sq.id % 3]}`}
+                    style={{
+                        left: sq.left,
+                        top: sq.top,
+                        animationDelay: sq.delay
+                    }}
                 />
             ))}
 
