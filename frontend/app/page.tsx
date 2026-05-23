@@ -3,6 +3,8 @@ import { useState, useEffect } from "react";
 import { Outfit, Newsreader } from "next/font/google";
 import { Grid3X3, X as XIcon, Calculator, Plus, Trash2, Eraser, Flame } from "lucide-react";
 
+import FeedbackModal from "../components/FeedbackModal";
+
 const outfit = Outfit({ subsets: ["latin"] });
 const newsreader = Newsreader({ subsets: ["latin"], style: ['normal', 'italic'] });
 
@@ -676,25 +678,10 @@ export default function Home() {
         </div>
       )}
 
-      {isSolved && !hasRated && (
-        <div className="mt-6 p-5 bg-emerald-50 rounded-2xl w-full max-w-md shadow-sm border border-emerald-200 text-center animate-in fade-in zoom-in-95 duration-500">
-          <p className={`${outfit.className} font-bold text-emerald-800 mb-3`}>
-            How well did the AI Tutor help you learn this board?
-          </p>
-          <div className="flex justify-center gap-2">
-            {[1, 2, 3, 4, 5].map(star => (
-              <button 
-                key={star} 
-                onClick={() => submitRating(star)}
-                className="text-3xl hover:scale-125 transition-transform hover:drop-shadow-md"
-                title={`Rate ${star} stars`}
-              >
-                ⭐
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
+      <FeedbackModal 
+        isOpen={isSolved && !hasRated} 
+        onSubmit={submitRating} 
+      />
     </main>
   );
 }
