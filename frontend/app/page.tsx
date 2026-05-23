@@ -124,6 +124,7 @@ export default function Home() {
   const [timeElapsed, setTimeElapsed] = useState(0);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [infoModal, setInfoModal] = useState<"standard" | "x-sudoku" | "killer" | null>(null);
+  const [historyLogs, setHistoryLogs] = useState<PlayHistory[]>([]);
 
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60);
@@ -139,10 +140,25 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [isTimerRunning, isSolved]);
 
+  useEffect(() => {
+  const data = localStorage.getItem('sudokuHistory');
+  if (data) {
+    setHistoryLogs(JSON.parse(data));
+  }
+}, [isSolved, isAssessmentOpen]);
+
   const themeColors = {
     "standard": { button: "bg-blue-600 hover:bg-blue-700", text: "text-blue-600", ring: "focus:ring-blue-200" },
     "x-sudoku": { button: "bg-orange-500 hover:bg-orange-600", text: "text-orange-500", ring: "focus:ring-orange-200" },
     "killer":   { button: "bg-red-500 hover:bg-red-600", text: "text-red-500", ring: "focus:ring-red-200" }
+  };
+
+  const getSampleColor = (name: string) => {
+    if (name.includes("Easy")) return "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100";
+    if (name.includes("Medium")) return "bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100";
+    if (name.includes("Hard") || name.includes("X-Sudoku")) return "bg-orange-50 text-orange-700 border-orange-200 hover:bg-orange-100";
+    if (name.includes("Killer")) return "bg-red-50 text-red-700 border-red-200 hover:bg-red-100";
+    return "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100";
   };
 
   const handleChange = (row: number, col: number, value: string) => {
@@ -789,7 +805,33 @@ export default function Home() {
                 <h3 className={`${outfit.className} text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center`}>
                   <History className="w-3 h-3 mr-1.5" /> Session Log
                 </h3>
-                <p className="text-sm text-slate-500 italic text-center py-4">Detailed history coming soon...</p>
+                
+                <div className="flex flex-col gap-3">
+                  {historyLogs.length === 0 ? (
+                    <p className="text-sm text-slate-500 italic text-center py-4">No games played yet.</p>
+                  ) : (
+                    historyLogs.map((log: PlayHistory, idx: number) => (
+                      <div key={idx} className="bg-white p-3 rounded-xl border border-slate-100 shadow-sm flex items-center justify-between">
+                        <div>
+                          <p className={`${outfit.className} font-bold text-slate-700 text-sm capitalize`}>
+                            {log.variant} <span className="text-xs font-normal text-slate-400 ml-1">
+                              {new Date(log.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                            </span>
+                          </p>
+                          <p className={`${outfit.className} text-xs text-slate-500 mt-1`}>
+                            Score: {log.difficultyScore?.toFixed(1)} • Time: {formatTime(log.timeTaken || 0)}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <span className={`${outfit.className} text-xs font-bold px-2 py-1 rounded-md ${log.solved ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
+                            {log.solved ? 'Solved' : 'Failed'}
+                          </span>
+                          {log.rating && <p className={`${outfit.className} text-xs mt-1`}>{"⭐".repeat(log.rating)}</p>}
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
               </div>
             </div>
           </div>
