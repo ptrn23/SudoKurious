@@ -579,7 +579,7 @@ export default function Home() {
                 return (
                   <div key={`${rIndex}-${cIndex}`} className="relative w-full aspect-square">
                     {isTopLeftOfCage && (
-                      <span className="absolute top-0.5 left-1 text-[9px] sm:text-[11px] font-bold text-red-700 z-30 pointer-events-none">
+                      <span className={`${outfit.className} absolute top-0.5 left-1 text-[9px] sm:text-[11px] font-bold text-red-700 z-30 pointer-events-none`}>
                         {matchingCage?.sum}
                       </span>
                     )}
