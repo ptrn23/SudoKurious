@@ -2,12 +2,12 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
-import torch
-import torch.nn.functional as F
+import numpy as np
+import joblib
 
-from ai.heuristics import get_best_h_move, check_sudoku
+from ai.advanced_forest import extract_advanced_features
+from ai.heuristics import find_naked_single, find_hidden_single, get_best_h_move, check_sudoku
 from ai.genetic_algorithm import GeneticSudokuSolver
-from ai.cnn_model import SudokuDifficultyPredictor
 
 app = FastAPI()
 
@@ -17,18 +17,14 @@ app.add_middleware(
        "https://sudo-kurious.vercel.app",
        "http://localhost:3000"
     ],
-    # allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-print("Loading CNN Difficulty Predictor...")
-device = torch.device("cpu")
-difficulty_model = SudokuDifficultyPredictor().to(device)
-difficulty_model.load_state_dict(torch.load("ai/cnn_weights.pth", map_location=device))
-difficulty_model.eval()
-print("Model loaded successfully!")
+print("Loading Advanced Random Forest Predictor...")
+difficulty_model = joblib.load("ai/advanced_forest.pkl")
+print("Random Forest Model loaded successfully!")
 
 class Cage(BaseModel):
     sum: int
@@ -39,35 +35,78 @@ class SudokuRequest(BaseModel):
     board: List[List[int]]
     cages: Optional[List[Cage]] = []
 
-@app.post("/api/get-hint")
+class HintResponse(BaseModel):
+    status: str
+    technique_used: str
+    highlight_cells: List[List[int]]
+    suggested_value: Optional[int] = None
+    explanation_text: str
+    difficulty_score: float
+
+class CheckResponse(BaseModel):
+    status: str
+    explanation_text: str
+    highlight_cells: Optional[List[List[int]]] = []
+    error_value: Optional[int] = None
+
+def predict_difficulty(grid):
+    board_np = np.array(grid)
+    
+    features = extract_advanced_features(board_np)
+    prediction = difficulty_model.predict([features])[0]
+    
+    final_difficulty = max(0.0, min(8.5, prediction))
+    
+    return round(final_difficulty, 1)
+
+
+@app.post("/api/get-hint", response_model=HintResponse)
 def get_hint(request: SudokuRequest):
     print(f"\n--- NEW AI REQUEST: {request.variant.upper()} ---")
     
-    board_tensor = torch.tensor(request.board, dtype=torch.long)
-    empty_count = (board_tensor == 0).sum().to(torch.float32).view(1, 1) / 81.0
-    board_one_hot = F.one_hot(board_tensor, num_classes=10).to(torch.float32)
-    board_one_hot = board_one_hot.permute(2, 0, 1).unsqueeze(0) 
-    
-    with torch.no_grad():
-        predicted_difficulty = difficulty_model(board_one_hot, empty_count).item()
-        
-    formatted_difficulty = round(predicted_difficulty, 1)
-    print(f"CNN Predicted Difficulty: {formatted_difficulty}")
+    formatted_difficulty = predict_difficulty(request.board)
+    print(f"Random Forest Predicted Difficulty: {formatted_difficulty}")
+
+    is_full = all(all(cell != 0 for cell in row) for row in request.board)
+    if is_full:
+        error_check = check_sudoku(request.board, request.variant, request.cages)
+        if error_check == "Complete Sudoku":
+            return {
+                "status": "success",
+                "technique_used": "Full Board",
+                "highlight_cells": [],
+                "suggested_value": None,
+                "explanation_text": "The Sudoku is already solved! Congratulations!",
+                "difficulty_score": formatted_difficulty 
+            }
     
     h_result = get_best_h_move(request.board, request.variant, request.cages)
     if h_result:
-        row, col, value, explanation = h_result.return_summary()
-        print(f"Hint found: Naked Single at ({row}, {col}) -> {value}")
+        if hasattr(h_result, 'return_summary'):
+            row, col, value, explanation = h_result.return_summary()
+        elif isinstance(h_result, tuple):
+            row, col, value, explanation = h_result
+        else:
+            return {
+                "status": "error",
+                "technique_used": "Error",
+                "highlight_cells": [],
+                "suggested_value": None,
+                "explanation_text": "Backend error: Unrecognized move format.",
+                "difficulty_score": formatted_difficulty
+            }
+
+        print(f"Hint found at ({row}, {col}) -> {value}")
         return {
             "status": "success",
-            "technique_used": "Naked Single",
-            "highlight_cells": [[row, col]],
-            "suggested_value": value,
-            "explanation_text": explanation,
+            "technique_used": "Logic Heuristic", 
+            "highlight_cells": [[int(row), int(col)]],
+            "suggested_value": int(value),
+            "explanation_text": str(explanation),
             "difficulty_score": formatted_difficulty 
         }
         
-    print("Heuristics exhausted. Booting Genetic Algorithm...")
+    print("Heuristics exhausted. Booting Memetic Algorithm...")
     
     ga_solver = GeneticSudokuSolver(
         request.board, 
@@ -86,8 +125,8 @@ def get_hint(request: SudokuRequest):
                     value = solved_board[r][c]
                     explanation = (
                         f"This board is too complex for basic human logic! "
-                        f"I booted up the Genetic Algorithm, and after simulating thousands of generations, "
-                        f"it guarantees that row {r + 1}, column {c + 1} must be {value}."
+                        f"I booted up the Memetic Algorithm, and after simulating thousands of generations, "
+                        f"we can try {value} in row {r + 1}, column {c + 1}."
                     )
                     return {
                         "status": "success",
@@ -107,24 +146,35 @@ def get_hint(request: SudokuRequest):
         "difficulty_score": formatted_difficulty 
     }
     
-@app.post("/api/check-sudoku")
-def get_hint(request: SudokuRequest):
+@app.post("/api/check-sudoku", response_model=CheckResponse)
+def check_sudoku_endpoint(request: SudokuRequest):
     print(f"\n--- CHECKER REQUEST: {request.variant.upper()} ---")
     
     error_msg = check_sudoku(request.board, request.variant, request.cages)
-    if error_msg:
-        # paul, checks return_summary method ng class incorrectSudoku para alam mu ano rinereturn or ano usto mo pang i return
-        if (error_msg == "Complete Sudoku"):
-            return {
-                "status": "success",
-                "explanation_text": "Complete Sudoku",
-            }
-        
-        offending_locs, value, explanation = error_msg.return_summary()
+    
+    if error_msg == "Complete Sudoku":
         return {
             "status": "success",
-            "highlight_cells": offending_locs,
+            "explanation_text": "Congratulations! The Sudoku is completely solved and valid!",
+            "highlight_cells": [],
+            "error_value": None
+        }
+    
+    elif error_msg:
+        offending_locs, value, friendly_explanation = error_msg.return_summary()
+        
+        formatted_highlights = [list(loc) for loc in offending_locs]
+        
+        return {
+            "status": "error",
+            "highlight_cells": formatted_highlights,
             "error_value": value,
-            "explanation_text": explanation,
+            "explanation_text": friendly_explanation,
         }
         
+    return {
+        "status": "valid",
+        "explanation_text": "Looking good so far! No conflicts detected.",
+        "highlight_cells": [],
+        "error_value": None
+    }

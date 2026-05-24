@@ -36,7 +36,7 @@ def get_culled_elite_count(graded_pop):
     return len(res)
 
 class GeneticSudokuSolver:
-    def __init__(self, original_board, solution = [], variant="standard", cages=None, pop_size=100, max_generations=1000):
+    def __init__(self, original_board, variant="standard", cages=None, pop_size=100, max_generations=1000, solution = []):
         self.original_board = original_board
         self.variant = variant
         self.cages = cages
@@ -49,6 +49,8 @@ class GeneticSudokuSolver:
         self.row_crossover_rate = 0.2
     
     def _true_sol_similarity(self, board):
+        if self.sol == []:
+            return 0
         res = 0
         for i in range(N):
             for j in range(N):
@@ -239,7 +241,6 @@ class GeneticSudokuSolver:
         return ret
     
     def solve(self):
-        print(f"Initializing Population ({self.pop_size} boards)...")
         population = [self._create_individual() for _ in range(self.pop_size)]
         gbest_board = None
         gbest_fitness = float("inf")
@@ -382,7 +383,7 @@ if __name__ == "__main__":
     }
     import time
     for _ in range(3):
-        ga = GeneticSudokuSolver(test_case2["grid"], test_case2["sol"], pop_size=250, max_generations=400)
+        ga = GeneticSudokuSolver(test_case2["grid"], solution = test_case2["sol"], pop_size=250, max_generations=400)
         start = time.time()
         solution = ga.solve()
         end = time.time()
