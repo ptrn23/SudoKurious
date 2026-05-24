@@ -73,7 +73,7 @@ def get_hint(request: SudokuRequest):
         request.board, 
         variant=request.variant, 
         cages=request.cages, 
-        pop_size=100, 
+        pop_size=250, 
         max_generations=1500
     )
     
