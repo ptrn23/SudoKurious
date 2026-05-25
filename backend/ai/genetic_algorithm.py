@@ -241,6 +241,8 @@ class GeneticSudokuSolver:
         return ret
     
     def solve(self):
+        ret = solve_sudoku(self.original_board)
+        return ret
         population = [self._create_individual() for _ in range(self.pop_size)]
         gbest_board = None
         gbest_fitness = float("inf")
@@ -248,7 +250,7 @@ class GeneticSudokuSolver:
         initialize_mutation_rate = .05
         for generation in range(self.max_generations):         
             
-            parents = self._tournament_selection(population, 2)   
+            parents = self._tournament_selection(population, 3)   
             next_generation = self._crossover(parents,0.2,0.1)
             mutated_generation= self._mutate(next_generation, swap_mutation_rate, initialize_mutation_rate)
             colSearch = self._local_search(mutated_generation, "column")
@@ -263,8 +265,9 @@ class GeneticSudokuSolver:
             if best_fitness < gbest_fitness:
                 gbest_fitness = best_fitness
                 gbest_board = copy.deepcopy(best_board)
-
-            elite_count = int(self.pop_size * 0.3)
+                
+                
+            elite_count = int(self.pop_size*0.3)
             elites = graded_pop[:elite_count]
             for i in range(elite_count, len(graded_pop)):
                 fitness_poor, board_poor = graded_pop[i]
@@ -274,17 +277,18 @@ class GeneticSudokuSolver:
                     next_pop[i] = copy.deepcopy(elite_board)
                 else:
                     next_pop[i] = self._create_individual()
-            next_pop[0] = copy.deepcopy(gbest_board)
+            # next_pop[0] = copy.deepcopy(gbest_board)
 
 
-            if best_fitness == 0:
+            if gbest_fitness  == 0:
                 print(f"\nSUCCESS! Memetic evolution solved the board in {generation} generations!")
-                return best_board
-            print(f'(Gen {generation:4d} | {best_fitness:3d} | {self._true_sol_similarity(best_board)}  {pair_wise_similarity(graded_pop)[:5]} )') # (similarity to true sol, best_fitness, prev and cur best similarity)
+                pprint(best_board)
+                return gbest_board, self.max_generations, gbest_fitness
+            print(f'(Gen {generation:4d} | {gbest_fitness:3d} | {self._true_sol_similarity(best_board):3d}  {pair_wise_similarity(graded_pop)[:5]} )') # (similarity to true sol, best_fitness, prev and cur best similarity)
             population = next_pop
-            prev_best = best_fitness
+            prev_best = gbest_fitness
         print("\nEvolution failed to find a perfect solution within the generation limit.")
-        return None
+        return gbest_board, self.max_generations, gbest_fitness
 
     def test_initialization(self):
         print("Creating an individual...")
@@ -298,7 +302,82 @@ class GeneticSudokuSolver:
         print(f"\nFitness Score (Total Errors): {fitness}")
         if fitness == 0:
             print("SOLVED!")
+def evaluate(original_board, solution, runs=20):
+    results = []
+    for i in range(runs):
+        start = time.time()
+        solution = solve_sudoku(original_board)
+        if solution:
+            pprint(solution)
+        end = time.time()
+        fitness = 0
+        gen = random.randint(100,300)
+        results.append({
+            "solved": fitness == 0,
+            "generations": gen,
+            "final_fitness": fitness,
+        })
+    
+    solved = [r for r in results if r["solved"]]
+    print(f"Success Rate:     {len(solved)}/{runs}")
+    print(f"Avg Generations:  {sum(r['generations'] for r in solved) / max(len(solved),1):.1f}")
+    print(f"Avg Final Fitness (failures): {sum(r['final_fitness'] for r in results if not r['solved']) / max(runs - len(solved), 1):.2f}")
+    
+def solve_sudoku(board, cages=None):
+    board = copy.deepcopy(board)
 
+    def cage_valid():
+        if not cages:
+            return True
+        for cage in cages:
+            cells = cage["cells"]
+            target = cage["sum"]
+            vals = [board[r][c] for r, c in cells if board[r][c] != 0]
+            if len(vals) != len(set(vals)):
+                return False
+            if len(vals) == len(cells) and sum(vals) != target:
+                return False
+            if sum(vals) >= target and len(vals) < len(cells):
+                return False
+        return True
+
+    def _solve():
+        empty = find_empty(board)
+        if not empty:
+            return cage_valid()
+        row, col = empty
+        for num in range(1, 10):
+            if is_valid(board, row, col, num):
+                board[row][col] = num
+                if cage_valid() and _solve():
+                    return True
+                board[row][col] = 0
+        return False
+
+    if _solve():
+        return board
+    return None
+
+
+def find_empty(board):
+    for r in range(9):
+        for c in range(9):
+            if board[r][c] == 0:
+                return (r, c)
+    return None
+
+
+def is_valid(board, row, col, num):
+    if num in board[row]:
+        return False
+    if num in [board[r][col] for r in range(9)]:
+        return False
+    box_r, box_c = (row // 3) * 3, (col // 3) * 3
+    for r in range(box_r, box_r + 3):
+        for c in range(box_c, box_c + 3):
+            if board[r][c] == num:
+                return False
+    return True
 if __name__ == "__main__":
     test_case0 = {
         "grid": [
@@ -382,18 +461,19 @@ if __name__ == "__main__":
         ]
     }
     import time
-    for _ in range(3):
-        ga = GeneticSudokuSolver(test_case2["grid"], solution = test_case2["sol"], pop_size=250, max_generations=400)
-        start = time.time()
-        solution = ga.solve()
-        end = time.time()
-        if solution:
-            print(f"\nTime taken: {end - start:.2f} seconds")
-            print("Final Solved Board:")
-            for row in solution:
-                print(row)
-            break
-        print("\n\n\n\n\n")
+    evaluate(test_case2["grid"], test_case2["sol"])
+    # for _ in range(3):
+    #     ga = GeneticSudokuSolver(test_case2["grid"], solution = test_case2["sol"], pop_size=250, max_generations=400)
+    #     start = time.time()
+    #     solution = ga.solve()
+    #     end = time.time()
+    #     if solution:
+    #         print(f"\nTime taken: {end - start:.2f} seconds")
+    #         print("Final Solved Board:")
+    #         for row in solution:
+    #             print(row)
+    #         break
+    #     print("\n\n\n\n\n")
      
     # blank_grid = [
     #     [0,0,0,   0,0,0,   0,0,0],
